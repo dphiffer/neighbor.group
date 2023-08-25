@@ -9,7 +9,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
 
             - uses: actions/setup-node@v3
               with:
@@ -26,9 +26,11 @@ jobs:
             - name: Sync
               env:
                   dest: "deploy@pinto.phiffer.org:/var/www/neighbor.group/"
+                  port: "5002"
               run: |
                   echo "${{secrets.DEPLOY_KEY}}" > deploy_key
                   chmod 600 ./deploy_key
+                  echo "PORT=${{env.port}}" > .env
                   rsync \
                     --rsh='ssh -i ./deploy_key -o StrictHostKeyChecking=no' \
                     --delete \
@@ -40,3 +42,4 @@ jobs:
                     --exclude 'node_modules/' \
                     ./ ${{env.dest}}
                   ssh -i ./deploy_key deploy@pinto.phiffer.org "cd /var/www/neighbor.group && npm install --omit=dev"
+                  ssh -i ./deploy_key deploy@pinto.phiffer.org "pm2 restart neighbor.group"

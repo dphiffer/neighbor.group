@@ -15,6 +15,7 @@
 	"author": "Dan Phiffer <dan@phiffer.org>",
 	"license": "ISC",
 	"dependencies": {
+		"dotenv": "^16.3.1",
 		"fastify": "^4.21.0"
 	},
 	"devDependencies": {
