@@ -1,0 +1,42 @@
+name: Deploy to pinto
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+
+            - name: Install dependencies
+              run: |
+                  npm install
+
+            - name: Build app
+              run: |
+                  npm run build
+
+            - name: Sync
+              env:
+                  dest: "deploy@pinto.phiffer.org:/var/www/neighbor.group/"
+              run: |
+                  echo "${{secrets.DEPLOY_KEY}}" > deploy_key
+                  chmod 600 ./deploy_key
+                  rsync \
+                    --rsh='ssh -i ./deploy_key -o StrictHostKeyChecking=no' \
+                    --delete \
+                    --checksum \
+                    --recursive \
+                    --verbose \
+                    --human-readable \
+                    --exclude 'deploy_key' \
+                    --exclude 'node_modules/' \
+                    ./ ${{env.dest}}
+                  ssh -i ./deploy_key deploy@pinto.phiffer.org "cd /var/www/neighbor.group && npm install --omit=dev"
