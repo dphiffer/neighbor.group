@@ -1,15 +1,15 @@
 {
 	"name": "neighbor.group",
 	"version": "0.0.1",
-	"description": "Group collaboration website",
+	"description": "Local group collaboration",
 	"main": "dist/server.js",
 	"scripts": {
 		"start": "node dist/server.js",
 		"test": "jest --coverage",
 		"build": "tsc",
-    "dev": "npm-run-all -p dev:*",
+		"dev": "npm-run-all -p dev:*",
 		"dev:server": "nodemon dist/server.js",
-    "dev:watch": "tsc --watch"
+		"dev:watch": "tsc --watch"
 	},
 	"keywords": [],
 	"author": "Dan Phiffer <dan@phiffer.org>",
