@@ -6,7 +6,7 @@ Local group collaboration
 
 -   Node.js v18
 
-## Setup
+## Development setup
 
 ```
 npm install

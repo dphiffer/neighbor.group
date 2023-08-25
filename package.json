@@ -8,15 +8,18 @@
 		"test": "jest --coverage",
 		"build": "tsc",
 		"dev": "npm-run-all -p dev:*",
-		"dev:server": "nodemon dist/server.js",
+		"dev:server": "tsc && nodemon dist/server.js",
 		"dev:watch": "tsc --watch"
 	},
 	"keywords": [],
 	"author": "Dan Phiffer <dan@phiffer.org>",
 	"license": "ISC",
 	"dependencies": {
+		"@fastify/view": "^8.0.0",
 		"dotenv": "^16.3.1",
-		"fastify": "^4.21.0"
+		"eta": "^3.1.1",
+		"fastify": "^4.21.0",
+		"pino-pretty": "^10.2.0"
 	},
 	"devDependencies": {
 		"@jest/globals": "^29.6.4",
