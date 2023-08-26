@@ -1,22 +1,24 @@
 import { Eta } from "eta";
-import fastify from "fastify";
+import fastify, { FastifyInstance } from "fastify";
 import fastifyView from "@fastify/view";
 import fastifyStatic from "@fastify/static";
+import { Server, IncomingMessage, ServerResponse } from "http";
 import path from "path";
 import { PinoLoggerOptions } from "fastify/types/logger";
+import sitePlugin from "./site";
 
 export type AppOptions = {
 	logger?: boolean | PinoLoggerOptions;
 };
 
 export default function buildApp(options: AppOptions = {}) {
-	const app = fastify(options);
+	const app: FastifyInstance<Server, IncomingMessage, ServerResponse> =
+		fastify(options);
 
 	app.register(fastifyView, {
 		engine: {
 			eta: new Eta(),
 		},
-		includeViewExtension: false,
 		root: path.join(path.dirname(__dirname), "src", "views"),
 		layout: "layout.eta",
 	});
@@ -32,9 +34,11 @@ export default function buildApp(options: AppOptions = {}) {
 		decorateReply: false,
 	});
 
+	app.register(sitePlugin);
+
 	app.all("/", (_, reply) => {
 		reply.view("index.eta", {
-			title: "neighbor.group",
+			title: app.getOption("site.title", "neighbor.group"),
 		});
 	});
 
@@ -44,5 +48,6 @@ export default function buildApp(options: AppOptions = {}) {
 			message: "I'm not dead",
 		});
 	});
+
 	return app;
 }
