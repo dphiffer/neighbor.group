@@ -1,0 +1,21 @@
+html {
+    font-family: "Inter", sans-serif;
+}
+
+@supports (font-variation-settings: normal) {
+    :root {
+        font-family: "Inter var", sans-serif;
+    }
+}
+
+body {
+    margin: 0;
+    font-size: 18px;
+    line-height: 28px;
+}
+
+.page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}

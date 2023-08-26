@@ -1,6 +1,7 @@
 import { Eta } from "eta";
 import fastify from "fastify";
 import fastifyView from "@fastify/view";
+import fastifyStatic from "@fastify/static";
 import path from "path";
 import { PinoLoggerOptions } from "fastify/types/logger";
 
@@ -18,6 +19,17 @@ export default function buildApp(options: AppOptions = {}) {
 		includeViewExtension: false,
 		root: path.join(path.dirname(__dirname), "src", "views"),
 		layout: "layout.eta",
+	});
+
+	app.register(fastifyStatic, {
+		root: path.join(path.dirname(__dirname), "static"),
+		prefix: "/static",
+	});
+
+	app.register(fastifyStatic, {
+		root: path.join(path.dirname(__dirname), "dist"),
+		prefix: "/dist",
+		decorateReply: false,
 	});
 
 	app.all("/", (_, reply) => {
