@@ -2,15 +2,15 @@ import { describe, expect, test, beforeAll, afterAll } from "@jest/globals";
 import { rimraf } from "rimraf";
 import DatabaseConnection from "./";
 
-beforeAll(async () => {
-	await rimraf("./data/test-db-user.db");
-});
-
-afterAll(async () => {
-	await rimraf("./data/test-db-user.db");
-});
-
 describe("db.user", () => {
+	beforeAll(async () => {
+		await rimraf("./data/test-db-user.db");
+	});
+
+	afterAll(async () => {
+		await rimraf("./data/test-db-user.db");
+	});
+
 	test("insert and select user", () => {
 		const db = new DatabaseConnection("test-db-user.db");
 		const insert = db.user.insert({

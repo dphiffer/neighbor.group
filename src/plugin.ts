@@ -43,8 +43,12 @@ export class SitePlugin {
 	}
 
 	getCurrentUser(request: FastifyRequest) {
-		const user = User.getCurrent(this.db, request);
-		return user ? user : null;
+		const id = request.session.get("user.id");
+		if (id) {
+			return User.load(this.db, BigInt(id));
+		} else {
+			return null;
+		}
 	}
 
 	getOption(key: string, defaultValue: string = "") {
@@ -65,8 +69,12 @@ export class SitePlugin {
 	}
 }
 
+export function getDatabasePath() {
+	return process.env.DATABASE || "main.db";
+}
+
 export default fastifyPlugin(async (app: FastifyInstance) => {
-	const dbPath = process.env.DATABASE || "main.db";
+	const dbPath = getDatabasePath();
 	let sitePlugin = new SitePlugin(dbPath, app);
 	app.decorate("db", sitePlugin.db);
 	app.decorate("setOption", sitePlugin.setOption.bind(sitePlugin));

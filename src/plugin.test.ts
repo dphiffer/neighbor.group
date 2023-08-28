@@ -8,9 +8,11 @@ import {
 	afterAll,
 } from "@jest/globals";
 import { rimraf } from "rimraf";
-import { SitePlugin } from "./plugin";
-import buildApp from "./app";
-import fastify, { FastifyRequest } from "fastify";
+import { SitePlugin, getDatabasePath } from "./plugin";
+import { fastify, FastifyRequest } from "fastify";
+import User from "./models/user";
+
+jest.mock("fastify");
 
 describe("plugin", () => {
 	const ORIG_ENV = process.env;
@@ -50,10 +52,36 @@ describe("plugin", () => {
 	test("setup sessions", () => {
 		process.env.DATABASE = "test-plugin.db";
 		const plugin = new SitePlugin("test-plugin.db");
-		const app = buildApp();
+		const app = fastify();
 		plugin.db.option.delete("session.key");
 		expect(plugin.getOption("session.key")).toBe("");
 		plugin.setupSessions(app);
 		expect(plugin.getOption("session.key")).not.toBe("");
+	});
+
+	test("user session", async () => {
+		process.env.DATABASE = "test-plugin.db";
+		const plugin = new SitePlugin("test-plugin.db");
+		await User.create(plugin.db, {
+			id: BigInt(0),
+			name: "test",
+			email: "test@test.test",
+			password: "test-test-test",
+		});
+		const mockRequest = {
+			session: {
+				get: (_: string) => {
+					return 1;
+				},
+			},
+		} as FastifyRequest;
+		const user = plugin.getCurrentUser(mockRequest);
+		expect(user?.data.name).toBe("test");
+	});
+
+	test("database path", () => {
+		expect(getDatabasePath()).toBe("main.db");
+		process.env.DATABASE = "test-plugin.db";
+		expect(getDatabasePath()).toBe("test-plugin.db");
 	});
 });

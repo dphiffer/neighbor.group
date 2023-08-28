@@ -57,15 +57,6 @@ export default class UserModel {
 		return slug;
 	}
 
-	static getCurrent(db: DatabaseConnection, request: FastifyRequest) {
-		let id = request.session.get("user.id");
-		if (id) {
-			return this.load(db, BigInt(id));
-		} else {
-			return null;
-		}
-	}
-
 	save() {
 		this.db.user.update(this.data.id, this.data);
 		this.data = this.db.user.select(this.data.id)!;

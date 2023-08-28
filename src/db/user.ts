@@ -4,8 +4,8 @@ export interface UserRow {
 	id: bigint;
 	name: string;
 	email: string;
-	slug: string;
 	password: string;
+	slug?: string;
 	active?: number;
 	created?: Date;
 	updated?: Date;
