@@ -1,0 +1,84 @@
+@use 'variables' as *;
+
+.login,
+.signup,
+.password {
+	margin: 40px auto 0 auto;
+	width: 100%;
+	padding: 15px;
+	max-width: 300px;
+
+	p {
+		margin-bottom: 20px;
+	}
+
+	label {
+		display: block;
+	}
+
+	input {
+		border: 0;
+		display: block;
+		margin-top: 10px;
+		margin-bottom: 20px;
+		padding: 10px;
+		font-family: inherit;
+		font-size: 100%;
+		line-height: 1.2;
+	}
+
+	input[type="email"],
+	input[type="text"],
+	input[type="password"] {
+		width: 100%;
+		color: $c-dark;
+		background: $c-light;
+		border: 1px solid $c-medium;
+
+		&:focus {
+			border-color: $c-medium;
+		}
+	}
+
+	input[type="submit"] {
+		border: 0;
+		border-radius: 4px;
+		color: $c-light;
+		background-color: $c-accent;
+		white-space: nowrap;
+		text-decoration: none;
+		cursor: pointer;
+		transition: 0.1s background-color ease-out;
+        padding: 10px 17px;
+
+		&:hover {
+			background-color: $c-dark;
+		}
+	}
+
+	.login__options,
+	.signup__options {
+		margin-top: 30px;
+		border-top: 1px solid $c-medium;
+		padding-top: 10px;
+		display: flex;
+		flex-direction: column;
+
+		a {
+			margin-top: 10px;
+		}
+	}
+
+	input[type="text"].reset-code {
+		font-family: $f-monospace;
+		font-size: 2em;
+		width: 140px;
+	}
+
+    .feedback {
+        background: lighten($c-alert, 30%);
+        padding: 15px;
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+}

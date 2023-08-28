@@ -1,0 +1,50 @@
+@use "variables" as *;
+
+html {
+    font-family: $f-system;
+}
+
+body {
+    margin: 0;
+    font-size: 18px;
+}
+
+.page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: $f-sans;
+	color: $c-dark;
+	font-weight: 800;
+	margin: 0;
+
+	a {
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+h1 {
+	font-size: 30px;
+    line-height: 36px;
+}
+
+h2 {
+	font-size: 24px;
+	margin-bottom: 24px;
+}
+
+a {
+	color: $c-accent;
+	transition: 0.1s color ease-out;
+
+	&:hover {
+		color: $c-dark;
+	}
+}

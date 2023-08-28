@@ -1,0 +1,3 @@
+<nav class="header-nav">
+    <h1><a href="/"><%= it.siteTitle %></a></h1>
+</nav>
