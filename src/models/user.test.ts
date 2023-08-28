@@ -27,6 +27,31 @@ describe("user model", () => {
 		expect(user.data.password).not.toBe("test-test-test"); // hashed
 	});
 
+	test("create invalid user", async () => {
+		try {
+			expect(
+				await User.create(db, {
+					id: BigInt(0),
+					name: "test",
+					email: "test(a)test.test", // no @ sign
+					slug: "test",
+					password: "test-test-test",
+				})
+			).toThrow();
+		} catch (_) {}
+		try {
+			expect(
+				await User.create(db, {
+					id: BigInt(0),
+					name: "", // no name set
+					email: "test@test.test",
+					slug: "test",
+					password: "test-test-test",
+				})
+			).toThrow();
+		} catch (_) {}
+	});
+
 	test("load user", () => {
 		const load = User.load(db, BigInt(1));
 		expect(load.data.name).toBe("test");

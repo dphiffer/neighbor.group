@@ -13,6 +13,12 @@ export default class UserModel {
 	}
 
 	static async create(db: DatabaseConnection, data: UserRow) {
+		if (!data.name || !data.email || !data.password) {
+			throw new Error("Please enter a name, email, and password.");
+		}
+		if (data.email.indexOf("@") === -1) {
+			throw new Error("Please enter a valid email address.");
+		}
 		const saltRounds = 10;
 		data.password = await bcrypt.hash(data.password, saltRounds);
 		data.slug = this.getDefaultSlug(db, data.email);

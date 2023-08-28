@@ -12,8 +12,6 @@ import { SitePlugin, getDatabasePath } from "./plugin";
 import { fastify, FastifyRequest } from "fastify";
 import User from "./models/user";
 
-jest.mock("fastify");
-
 describe("plugin", () => {
 	const ORIG_ENV = process.env;
 

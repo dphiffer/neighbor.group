@@ -7,7 +7,7 @@ import {
 	beforeEach,
 	afterAll,
 } from "@jest/globals";
-import buildApp from "../src/app";
+import buildApp from "./app";
 import { rimraf } from "rimraf";
 
 describe("app", () => {
