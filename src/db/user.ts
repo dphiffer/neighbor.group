@@ -97,7 +97,7 @@ export default class UserQueries {
 		let stmt = this.db.prepare(`
 			UPDATE user
 			SET active = 0
-            WHERE id = $id
+            WHERE id = ?
 		`);
 		return stmt.run(id);
 	}
