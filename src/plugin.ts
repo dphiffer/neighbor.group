@@ -19,7 +19,6 @@ export class SitePlugin {
 	setupSessions(app: FastifyInstance) {
 		let sessionKey = this.getOption("session.key");
 		if (!sessionKey) {
-			app.log.info("Generating session key");
 			let buffer = Buffer.allocUnsafe(sodium.crypto_secretbox_KEYBYTES);
 			sodium.randombytes_buf(buffer);
 			sessionKey = buffer.toString("hex");

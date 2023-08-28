@@ -64,9 +64,6 @@ export default class UserModel {
 	}
 
 	async checkPassword(password: string) {
-		if (!this.data) {
-			return false;
-		}
 		const result = await bcrypt.compare(password, this.data.password);
 		return result;
 	}
