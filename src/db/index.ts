@@ -3,15 +3,19 @@ import fs from "fs";
 import { glob } from "glob";
 import path from "path";
 import OptionQueries from "./option";
+import UserQueries from "./user";
 
 export default class DatabaseConnection {
 	conn: Database;
 	option: OptionQueries;
+	user: UserQueries;
+
 	static connections: Database[] = [];
 
 	constructor(name: string) {
 		this.conn = DatabaseConnection.getConnection(name);
 		this.option = new OptionQueries(this.conn);
+		this.user = new UserQueries(this.conn);
 	}
 
 	static getConnection(name: string) {
