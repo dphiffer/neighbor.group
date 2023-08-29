@@ -34,6 +34,7 @@ export class SitePlugin {
 
 	setupPreHandler(app: FastifyInstance) {
 		app.addHook("preHandler", (request, reply, done) => {
+			request.user = this.getCurrentUser(request);
 			reply.locals = {
 				user: this.getCurrentUser(request),
 			};
@@ -78,4 +79,5 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 	app.decorate("db", sitePlugin.db);
 	app.decorate("setOption", sitePlugin.setOption.bind(sitePlugin));
 	app.decorate("getOption", sitePlugin.getOption.bind(sitePlugin));
+	app.decorateRequest("user", null);
 });

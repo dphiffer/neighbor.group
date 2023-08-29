@@ -9,7 +9,14 @@ declare module "fastify" {
 		setOption(key: string, value: string): void;
 		getOption(key: string, defaultValue?: string | null): string;
 	}
+	export interface FastifyRequest {
+		user: User | null;
+	}
 	export interface FastifyReply {
 		locals: { user: User | null };
+	}
+	export interface Cookie {
+		name: string;
+		value: string;
 	}
 }

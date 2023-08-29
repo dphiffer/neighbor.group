@@ -9,9 +9,11 @@ import {
 } from "@jest/globals";
 import buildApp from "../app";
 import { rimraf } from "rimraf";
+import { Cookie } from "fastify";
 
 describe("auth routes", () => {
 	const ORIG_ENV = process.env;
+	let session: Cookie;
 
 	beforeAll(async () => {
 		await rimraf("./data/test-auth-routes.db");
@@ -91,6 +93,7 @@ describe("auth routes", () => {
 		expect(response.cookies.length).toBe(1);
 		expect(response.cookies[0].name).toBe("session");
 		expect(response.statusCode).toBe(302);
+		session = response.cookies[0];
 	});
 
 	test("invalid login submission", async () => {
@@ -105,6 +108,28 @@ describe("auth routes", () => {
 			},
 		});
 		expect(response.statusCode).toBe(400);
+	});
+
+	test("redirect logged in users", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: "/login",
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response.statusCode).toBe(302);
+
+		const response2 = await app.inject({
+			method: "GET",
+			url: "/signup",
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response2.statusCode).toBe(302);
 	});
 
 	test("logout", async () => {

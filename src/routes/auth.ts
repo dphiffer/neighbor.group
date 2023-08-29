@@ -14,6 +14,9 @@ export default (
 	done: () => void
 ) => {
 	app.get("/signup", (request, reply) => {
+		if (request.user) {
+			return reply.redirect("/");
+		}
 		reply.view("signup.eta", {
 			title: `Sign up - ${app.getOption("site.title", "neighbor.group")}`,
 			redirect: "",
@@ -65,6 +68,9 @@ export default (
 	);
 
 	app.get("/login", (request, reply) => {
+		if (request.user) {
+			return reply.redirect("/");
+		}
 		reply.view("login.eta", {
 			title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
 			redirect: "",
