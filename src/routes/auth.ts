@@ -110,5 +110,24 @@ export default (
 		reply.redirect("/login");
 	});
 
+	app.get("/password", (request, reply) => {
+		return reply.view("password.eta", {
+			title: `Password Reset - ${app.getOption(
+				"site.title",
+				"neighbor.group"
+			)}`,
+		});
+	});
+
+	app.post("/password", (request, reply) => {});
+
+	app.get("/password/:id", (request, reply) => {});
+
+	app.post("/password/:id", (request, reply) => {});
+
+	app.get("/password/reset", (request, reply) => {});
+
+	app.post("/password/reset", (request, reply) => {});
+
 	done();
 };

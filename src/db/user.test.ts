@@ -21,11 +21,18 @@ describe("db.user", () => {
 			password: "test-test-test",
 		});
 		const select = db.user.select(BigInt(insert.lastInsertRowid));
-		if (select) {
-			expect(select.name).toBe("test");
-			expect(select.email).toBe("test@test.test");
-			expect(select.password).toBe("test-test-test");
+		if (!select) {
+			throw new Error("could not select inserted user");
 		}
+		expect(select.name).toBe("test");
+		expect(select.email).toBe("test@test.test");
+		expect(select.password).toBe("test-test-test");
+	});
+
+	test("select non-existent user", () => {
+		const db = new DatabaseConnection("test-db-user.db");
+		const select = db.user.select(BigInt(0));
+		expect(select).toBe(null);
 	});
 
 	test("load and update user", () => {

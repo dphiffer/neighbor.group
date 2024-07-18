@@ -14,6 +14,7 @@ import { Cookie } from "fastify";
 describe("auth routes", () => {
 	const ORIG_ENV = process.env;
 	let session: Cookie;
+	let passwordResetId: string;
 
 	beforeAll(async () => {
 		await rimraf("./data/test-auth-routes.db");
@@ -141,6 +142,102 @@ describe("auth routes", () => {
 		});
 		expect(response.cookies.length).toBe(1);
 		expect(response.cookies[0].value).toBe("");
+		expect(response.statusCode).toBe(302);
+	});
+
+	test("load password reset page", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: "/password",
+		});
+		expect(response.statusCode).toBe(200);
+	});
+
+	test("start password reset", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/password",
+		});
+		expect(response.statusCode).toBe(302);
+		const urlMatch = ("" + response.headers.location).match(
+			/\/password\/(.+)$/
+		);
+		if (urlMatch) {
+			passwordResetId = urlMatch[1];
+		}
+		expect(passwordResetId.length).toBe(40);
+	});
+
+	test("invalid password reset", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: "/password/does-not-exist",
+		});
+		expect(response.statusCode).toBe(302);
+	});
+
+	test("valid password reset id", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: `/password/${passwordResetId}`,
+		});
+		expect(response.statusCode).toBe(200);
+	});
+
+	test("invalid password reset code", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: `/password/${passwordResetId}`,
+			body: {
+				code: "incorrect",
+			},
+		});
+		expect(response.statusCode).toBe(400);
+	});
+
+	test("valid password reset code", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: `/password/${passwordResetId}`,
+			body: {
+				code: "correct",
+			},
+		});
+		expect(response.statusCode).toBe(302);
+	});
+
+	test("change password page", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: `/password/reset`,
+		});
+		expect(response.statusCode).toBe(200);
+	});
+
+	test("change password submission", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: `/password/reset`,
+			body: {
+				password: "foo",
+			},
+		});
 		expect(response.statusCode).toBe(302);
 	});
 });

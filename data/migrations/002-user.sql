@@ -1,5 +1,5 @@
 CREATE TABLE user (
-	id INTEGER PRIMARY KEY,
+	id BIGINT PRIMARY KEY,
 	slug TEXT UNIQUE,
     email TEXT UNIQUE,
 	name TEXT,
