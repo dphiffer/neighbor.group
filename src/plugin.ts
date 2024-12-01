@@ -45,7 +45,7 @@ export class SitePlugin {
 	getCurrentUser(request: FastifyRequest) {
 		const id = request.session.get("user.id");
 		if (id) {
-			return User.load(this.db, BigInt(id));
+			return User.load(this.db, id);
 		} else {
 			return null;
 		}

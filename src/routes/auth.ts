@@ -37,7 +37,7 @@ export default (
 				// 	throw new Error('Sorry, you cannot sign up for a new account.');
 				// }
 				let user = await User.create(app.db, {
-					id: BigInt(0),
+					id: 0,
 					name: request.body.name,
 					email: request.body.email,
 					password: request.body.password,

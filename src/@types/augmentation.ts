@@ -23,6 +23,6 @@ declare module "fastify" {
 
 declare module '@fastify/secure-session' {
 	interface SessionData {
-		'user.id': bigint;
+		'user.id': number;
 	}
 }

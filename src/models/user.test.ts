@@ -17,7 +17,7 @@ describe("user model", () => {
 
 	test("create user", async () => {
 		const user = await User.create(db, {
-			id: BigInt(0),
+			id: 0,
 			name: "test",
 			email: "test@test.test",
 			slug: "test",
@@ -31,7 +31,7 @@ describe("user model", () => {
 		try {
 			expect(
 				await User.create(db, {
-					id: BigInt(0),
+					id: 0,
 					name: "test",
 					email: "test(a)test.test", // no @ sign
 					slug: "test",
@@ -42,7 +42,7 @@ describe("user model", () => {
 		try {
 			expect(
 				await User.create(db, {
-					id: BigInt(0),
+					id: 0,
 					name: "", // no name set
 					email: "test@test.test",
 					slug: "test",
@@ -53,7 +53,7 @@ describe("user model", () => {
 	});
 
 	test("load user", () => {
-		const load = User.load(db, BigInt(1));
+		const load = User.load(db, 1);
 		expect(load.data.name).toBe("test");
 		const load2 = User.load(db, "test");
 		expect(load2.data.email).toBe("test@test.test");
@@ -75,7 +75,7 @@ describe("user model", () => {
 	});
 
 	test("save user", () => {
-		const user = User.load(db, BigInt(1));
+		const user = User.load(db, 1);
 		user.data.name = "test-updated";
 		user.save();
 		const user2 = User.load(db, "test");
@@ -83,14 +83,14 @@ describe("user model", () => {
 	});
 
 	test("set and check password", async () => {
-		const user = User.load(db, BigInt(1));
+		const user = User.load(db, 1);
 		await user.setPassword("test-pw-updated");
 		expect(await user.checkPassword("test-pw-updated")).toBe(true);
 	});
 
 	test("delete user", async () => {
 		const user = await User.create(db, {
-			id: BigInt(0),
+			id: 0,
 			name: "test",
 			email: "test-deletion@test.test",
 			password: "test-test-test",

@@ -61,7 +61,7 @@ describe("plugin", () => {
 		process.env.DATABASE = "test-plugin.db";
 		const plugin = new SitePlugin("test-plugin.db");
 		await User.create(plugin.db, {
-			id: BigInt(0),
+			id: 0,
 			name: "test",
 			email: "test@test.test",
 			password: "test-test-test",

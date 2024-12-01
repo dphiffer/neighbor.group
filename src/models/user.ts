@@ -24,15 +24,15 @@ export default class UserModel {
 		data.slug = this.getDefaultSlug(db, data.email);
 		data.active = 1;
 		const result = db.user.insert(data);
-		data.id = result.lastInsertRowid as bigint;
+		data.id = result.lastInsertRowid as number;
 		return new UserModel(db, data);
 	}
 
-	static load(db: DatabaseConnection, id: bigint | string) {
+	static load(db: DatabaseConnection, id: number | string) {
 		let data: UserRow | null = null;
 		const emailRegex = /^\w+@\w+\.\w+$/;
 		const slugRegex = /^[a-z][a-z0-9_-]*$/i;
-		if (typeof id == "bigint") {
+		if (typeof id == "number") {
 			data = db.user.select(id);
 		} else if (typeof id == "string") {
 			if (id.match(emailRegex)) {

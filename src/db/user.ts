@@ -1,7 +1,7 @@
 import { Database } from "better-sqlite3";
 
 export interface UserRow {
-	id: bigint;
+	id: number;
 	name: string;
 	email: string;
 	password: string;
@@ -27,7 +27,7 @@ export default class UserQueries {
 		return stmt.all() as UserRow[];
 	}
 
-	select(id: bigint) {
+	select(id: number) {
 		let stmt = this.db.prepare(`
 			SELECT *
 			FROM user
@@ -73,7 +73,7 @@ export default class UserQueries {
 		return stmt.run(values);
 	}
 
-	update(id: bigint, values: Partial<UserRow>) {
+	update(id: number, values: Partial<UserRow>) {
 		const assignments = [];
 		const skipCols = ["id", "created", "updated"];
 		for (const col of Object.keys(values)) {
@@ -93,7 +93,7 @@ export default class UserQueries {
 		});
 	}
 
-	delete(id: bigint) {
+	delete(id: number) {
 		let stmt = this.db.prepare(`
 			UPDATE user
 			SET active = 0

@@ -20,7 +20,7 @@ describe("db.user", () => {
 			active: 1,
 			password: "test-test-test",
 		});
-		const select = db.user.select(BigInt(insert.lastInsertRowid));
+		const select = db.user.select(insert.lastInsertRowid as number);
 		if (!select) {
 			throw new Error("could not select inserted user");
 		}
@@ -31,7 +31,7 @@ describe("db.user", () => {
 
 	test("select non-existent user", () => {
 		const db = new DatabaseConnection("test-db-user.db");
-		const select = db.user.select(BigInt(0));
+		const select = db.user.select(0);
 		expect(select).toBe(null);
 	});
 
@@ -56,8 +56,8 @@ describe("db.user", () => {
 
 	test("delete user", () => {
 		const db = new DatabaseConnection("test-db-user.db");
-		db.user.delete(BigInt(1));
-		const load = db.user.select(BigInt(1));
+		db.user.delete(1);
+		const load = db.user.select(1);
 		expect(load).toBe(null);
 		const load2 = db.user.loadBy("slug", "test");
 		expect(load2).toBe(null);
