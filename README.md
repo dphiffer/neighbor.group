@@ -4,11 +4,12 @@ Local group collaboration
 
 ## Dependencies
 
--   Node.js v18
+-   Node.js v22
 
 ## Development setup
 
 ```
+nvm use
 npm install
 npm run dev
 ```
