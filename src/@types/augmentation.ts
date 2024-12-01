@@ -20,3 +20,9 @@ declare module "fastify" {
 		value: string;
 	}
 }
+
+declare module '@fastify/secure-session' {
+	interface SessionData {
+		'user.id': bigint;
+	}
+}
