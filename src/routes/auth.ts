@@ -119,15 +119,100 @@ export default (
 		});
 	});
 
-	app.post("/password", (request, reply) => {});
+	app.post("/password", async (
+		request: FastifyRequest<{
+			Body: { email: string };
+		}>,
+		reply
+	) => {
+		let id;
+		try {
+			let user = User.load(app.db, request.body.email);
+			id = user.resetPassword();
+		} catch (err) {
+			// If the email is not found, just return an arbitrary ID
+			id = User.getVerificationId();
+		}
+		return reply.redirect(`/password/${id}`);
+	});
 
-	app.get("/password/:id", (request, reply) => {});
+	app.get("/password/:id", (request: FastifyRequest<{
+			Params: { id: string };
+		}>, reply) => {
+		return reply.view("passwordVerify.eta", {
+			id: request.params.id,
+			feedback: 'Please check your email for a verification code.',
+			title: `Password Reset - ${app.getOption(
+				"site.title",
+				"neighbor.group"
+			)}`,
+		});
+	});
 
-	app.post("/password/:id", (request, reply) => {});
+	app.post("/password/:id", (request: FastifyRequest<{
+			Params: { id: string };
+			Body: { code: string };
+		}>, reply) => {
+			try {
+				const user = User.verifyPasswordReset(app.db, request.params.id, request.body.code);
+				request.session.set("user.id", user.data.id);
+				return reply.redirect(`/password/reset`);
+			} catch (err) {
+				return reply.code(400).view("passwordVerify.eta", {
+					id: request.params.id,
+					title: `Password Reset - ${app.getOption(
+						"site.title",
+						"neighbor.group"
+					)}`,
+					feedback: "Sorry, your password reset code was invalid."
+				});
+			}
+	});
 
-	app.get("/password/reset", (request, reply) => {});
+	app.get("/password/reset", (request, reply) => {
+		return reply.view("passwordReset.eta", {
+			feedback: 'Please enter a new password and then enter it again.',
+			title: `Password Reset - ${app.getOption(
+				"site.title",
+				"neighbor.group"
+			)}`,
+		});
+	});
 
-	app.post("/password/reset", (request, reply) => {});
+	app.post("/password/reset", async (request: FastifyRequest<{
+		Body: {
+			password: string,
+			password2: string
+		};
+	}>, reply) => {
+		let response;
+		if (!request.user) {
+			return reply.view("passwordDone.eta", {
+				feedback: 'Sorry, there was a problem loading your user. Cannot reset your password.',
+				title: `Password Reset - ${app.getOption(
+					"site.title",
+					"neighbor.group"
+				)}`,
+			});
+		} else if (request.body.password === request.body.password2 && request.body.password != '') {
+			await request.user.setPassword(request.body.password);
+			return reply.view("passwordDone.eta", {
+				feedback: 'Success! Your password has been reset.',
+				title: `Password Reset - ${app.getOption(
+					"site.title",
+					"neighbor.group"
+				)}`,
+			});
+		} else {
+			return reply.view("passwordReset.eta", {
+				feedback: 'There was a problem with the passwords you entered, please try again.',
+				title: `Password Reset - ${app.getOption(
+					"site.title",
+					"neighbor.group"
+				)}`,
+			});
+		}
+	});
 
 	done();
 };

@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import DatabaseConnection from "../db";
 import { UserRow } from "../db/user";
 import { FastifyRequest } from "fastify";
+import * as crypto from "node:crypto";
 
 export default class UserModel {
 	db: DatabaseConnection;
@@ -63,6 +64,22 @@ export default class UserModel {
 		return slug;
 	}
 
+	static getVerificationId() {
+		return crypto.randomBytes(20).toString('hex');
+	}
+
+	static verifyPasswordReset(db: DatabaseConnection, id: string, code: string) {
+		const passwordReset = db.passwordReset.select(id);
+		if (!passwordReset || passwordReset.code !== code) {
+			throw new Error('Invalid password reset');
+		}
+		const user = UserModel.load(db, passwordReset.user_id);
+		if (!user) {
+			throw new Error('Invalid password reset');
+		}
+		return user;
+	}
+
 	save() {
 		this.db.user.update(this.data.id, this.data);
 		this.data = this.db.user.select(this.data.id)!;
@@ -79,6 +96,19 @@ export default class UserModel {
 		this.data.password = await bcrypt.hash(password, saltRounds);
 		this.save();
 		return this;
+	}
+
+	resetPassword() {
+		const id = UserModel.getVerificationId();
+		const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+		console.log(`Password reset use code: ${code}`);
+		const result = this.db.passwordReset.insert({
+			id: id,
+			user_id: this.data.id,
+			code: code,
+			status: 'unclaimed',
+		});
+		return id;
 	}
 
 	delete() {

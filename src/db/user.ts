@@ -32,7 +32,7 @@ export default class UserQueries {
 			SELECT *
 			FROM user
 			WHERE id = ?
-            AND active = 1
+			AND active = 1
 		`);
 		let row = stmt.get(id) as UserRow | null;
 		if (!row) {

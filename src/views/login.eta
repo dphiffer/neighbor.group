@@ -19,7 +19,7 @@
 		<input type="submit" value="Login">
 	</form>
 	<div class="login__options">
-		<% /* <a href="/password">Forget your password?</a> */ %>
+		<a href="/password">Forget your password?</a>
         <% if (it.signupEnabled) { %>
 		    <a href="/signup">Sign up for a new account</a>
         <% } %>

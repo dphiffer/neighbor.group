@@ -4,11 +4,13 @@ import { glob } from "glob";
 import path from "path";
 import OptionQueries from "./option";
 import UserQueries from "./user";
+import PasswordResetQueries from "./passwordReset";
 
 export default class DatabaseConnection {
 	conn: Database;
 	option: OptionQueries;
 	user: UserQueries;
+	passwordReset: PasswordResetQueries
 
 	static connections: Database[] = [];
 
@@ -16,6 +18,7 @@ export default class DatabaseConnection {
 		this.conn = DatabaseConnection.getConnection(name);
 		this.option = new OptionQueries(this.conn);
 		this.user = new UserQueries(this.conn);
+		this.passwordReset = new PasswordResetQueries(this.conn);
 	}
 
 	static getConnection(name: string) {
