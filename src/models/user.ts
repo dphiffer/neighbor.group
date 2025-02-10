@@ -47,7 +47,7 @@ export default class UserModel {
 			}
 		}
 		if (!data) {
-			throw new Error(`User '${id}' not found`);
+			throw new Error(`User '${id}' not found.`);
 		}
 		return new UserModel(db, data);
 	}

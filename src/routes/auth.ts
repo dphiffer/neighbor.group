@@ -114,8 +114,10 @@ export default (
 		return reply.view("password.eta", {
 			title: `Password Reset - ${app.getOption(
 				"site.title",
-				"neighbor.group"
+				"neighbor.group",
 			)}`,
+			feedback: "",
+			email: "",
 		});
 	});
 
@@ -127,11 +129,23 @@ export default (
 	) => {
 		let id;
 		try {
+			if (request.body.email == '') {
+				throw new Error('Please enter an email address.');
+			}
+			if (request.body.email.indexOf('@') == -1) {
+				throw new Error('Please enter a valid email address.');
+			}
 			let user = User.load(app.db, request.body.email);
 			id = user.resetPassword();
 		} catch (err) {
-			// If the email is not found, just return an arbitrary ID
-			id = User.getVerificationId();
+			let feedback = "Error: something unexpected happened.";
+			if (err instanceof Error) {
+				feedback = err.message;
+			}
+			return reply.code(400).view("password.eta", {
+				feedback: feedback,
+				email: request.body.email
+			});
 		}
 		return reply.redirect(`/password/${id}`);
 	});
