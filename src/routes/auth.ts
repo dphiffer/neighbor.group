@@ -202,13 +202,18 @@ export default (
 		let response;
 		if (!request.user) {
 			return reply.view("passwordDone.eta", {
-				feedback: 'Sorry, there was a problem loading your user. Cannot reset your password.',
+				feedback: 'Sorry, there was a problem loading your user. Your password cannot be reset.',
 				title: `Password Reset - ${app.getOption(
 					"site.title",
 					"neighbor.group"
 				)}`,
 			});
-		} else if (request.body.password === request.body.password2 && request.body.password != '') {
+		}
+		try {
+			if (request.body.password !== request.body.password2) {
+				throw new Error('Sorry, your passwords did not match.');
+			}
+			User.validatePassword(request.body.password);
 			await request.user.setPassword(request.body.password);
 			return reply.view("passwordDone.eta", {
 				feedback: 'Success! Your password has been reset.',
@@ -217,9 +222,13 @@ export default (
 					"neighbor.group"
 				)}`,
 			});
-		} else {
-			return reply.view("passwordReset.eta", {
-				feedback: 'There was a problem with the passwords you entered, please try again.',
+		} catch (err) {
+			let feedback = 'There was a problem with the passwords you entered, please try again.';
+			if (err instanceof Error) {
+				feedback = err.message;
+			}
+			return reply.code(400).view("passwordReset.eta", {
+				feedback: feedback,
 				title: `Password Reset - ${app.getOption(
 					"site.title",
 					"neighbor.group"
