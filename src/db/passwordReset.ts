@@ -46,4 +46,23 @@ export default class PasswordResetQueries {
 		`);
 		return stmt.run(values);
 	}
+
+	update(id: string, values: Partial<PasswordResetRow>) {
+		const assignments = [];
+		const skipCols = ["created", "updated"];
+		for (const col of Object.keys(values)) {
+			if (skipCols.indexOf(col) === -1) {
+				assignments.push(`${col} = $${col}`);
+			}
+		}
+		let stmt = this.db.prepare(`
+			UPDATE password_reset
+			SET ${assignments.join(', ')}, updated = CURRENT_TIMESTAMP
+			WHERE id = $id
+		`);
+		return stmt.run({
+			id: id,
+			...values
+		});
+	}
 }

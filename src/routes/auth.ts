@@ -153,6 +153,9 @@ export default (
 	app.get("/password/:id", (request: FastifyRequest<{
 			Params: { id: string };
 		}>, reply) => {
+		if (request.user) {
+			return reply.redirect("/password/reset");
+		}
 		return reply.view("passwordVerify.eta", {
 			id: request.params.id,
 			feedback: 'Please check your email for a verification code.',
@@ -169,6 +172,9 @@ export default (
 		}>, reply) => {
 			try {
 				const user = User.verifyPasswordReset(app.db, request.params.id, request.body.code);
+				app.db.passwordReset.update(request.params.id, {
+					status: 'claimed',
+				});
 				request.session.set("user.id", user.data.id);
 				return reply.redirect(`/password/reset`);
 			} catch (err) {
@@ -184,8 +190,11 @@ export default (
 	});
 
 	app.get("/password/reset", (request, reply) => {
+		if (!request.user) {
+			return reply.redirect("/password");
+		}
 		return reply.view("passwordReset.eta", {
-			feedback: 'Please enter a new password and then enter it again.',
+			feedback: '',
 			title: `Password Reset - ${app.getOption(
 				"site.title",
 				"neighbor.group"
