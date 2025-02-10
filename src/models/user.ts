@@ -20,6 +20,10 @@ export default class UserModel {
 		if (data.email.indexOf("@") === -1) {
 			throw new Error("Please enter a valid email address.");
 		}
+		if (db.user.loadBy('email', data.email)) {
+			throw new Error("Sorry, that email address is registered to an existing account.");
+		}
+		this.validatePassword(data.password);
 		const saltRounds = 10;
 		data.password = await bcrypt.hash(data.password, saltRounds);
 		data.slug = this.getDefaultSlug(db, data.email);
@@ -62,6 +66,22 @@ export default class UserModel {
 			slug = `${prefix}${suffix}`;
 		}
 		return slug;
+	}
+
+	static validatePassword(password: string) {
+		const errorMessage = "Please enter a password at least 8 characters long that contains at least one of: a lowercase letter, an uppercase letter, a number.";
+		if (password.length < 8) {
+			throw new Error(errorMessage);
+		}
+		if (!password.match(/[a-z]/)) {
+			throw new Error(errorMessage);
+		}
+		if (!password.match(/[A-Z]/)) {
+			throw new Error(errorMessage);
+		}
+		if (!password.match(/[0-9]/)) {
+			throw new Error(errorMessage);
+		}
 	}
 
 	static getVerificationId() {
