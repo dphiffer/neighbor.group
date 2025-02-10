@@ -13,7 +13,7 @@ export default (
 			title: app.getOption("site.title", "neighbor.group"),
 			intro: app.getOption(
 				"site.intro",
-				"A website for local group collaboration."
+				"A website for local groups."
 			),
 		});
 	});
