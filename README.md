@@ -5,6 +5,7 @@ Local group collaboration
 ## Dependencies
 
 -   Node.js v22
+-   nvm
 
 ## Development setup
 

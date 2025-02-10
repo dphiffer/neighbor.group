@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import DatabaseConnection from "../db";
 import { UserRow } from "../db/user";
-import { FastifyRequest } from "fastify";
 import * as crypto from "node:crypto";
 
 export default class UserModel {
