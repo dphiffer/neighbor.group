@@ -3,6 +3,12 @@ import DatabaseConnection from "../db";
 import { UserRow } from "../db/user";
 import * as crypto from "node:crypto";
 
+const dailyErrorLimits = {
+	signup: 5,
+	login: 5,
+	'password reset': 5
+};
+
 export default class UserModel {
 	db: DatabaseConnection;
 	data: UserRow;
@@ -96,7 +102,34 @@ export default class UserModel {
 		if (!user) {
 			throw new Error('Invalid password reset');
 		}
+		db.passwordReset.update(id, {
+			status: 'claimed',
+		});
 		return user;
+	}
+
+	static authLog(db: DatabaseConnection, ipAddress: string, event: string, description: string) {
+		const limitReached = db.authLog.getRecentErrors(ipAddress, `${event} daily limit`);
+		if (limitReached.length > 0) {
+			// Don't fill the logs with errors if we've already reached the daily limit
+			return;
+		}
+		return db.authLog.insert({
+			ip_address: ipAddress,
+			event: event,
+			description: description
+		});
+	}
+
+	static checkAuthErrors(db: DatabaseConnection, ipAddress: string, event: 'login' | 'signup' | 'password reset') {
+		const loginErrors = db.authLog.getRecentErrors(ipAddress, event);
+		if (loginErrors.length >= dailyErrorLimits[event]) {
+			const existingLogs = db.authLog.getRecentErrors(ipAddress, `${event} error daily limit`);
+			if (existingLogs.length == 0) {
+				this.authLog(db, ipAddress, `${event} error daily limit error`, `${ipAddress} reached the daily ${event} error limit of ${dailyErrorLimits[event]}`);
+			}
+			throw new Error(`Sorry, too many ${event} errors. Please try again tomorrow.`);
+		}
 	}
 
 	save() {

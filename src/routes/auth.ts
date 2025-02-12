@@ -46,6 +46,7 @@ export default (
 					`Created user '${user.data.email}' (${user.data.id})`
 				);
 				request.session.set("user.id", user.data.id);
+				User.authLog(app.db, request.ip, 'signup', `Signup: ${request.body.name} <${request.body.email}>`);
 				// if (!app.getOption('site.initialized')) {
 				// 	app.setOption("site.initialized", 1);
 				// 	return reply.redirect("/settings");
@@ -56,6 +57,7 @@ export default (
 				if (err instanceof Error) {
 					feedback = err.message;
 				}
+				User.authLog(app.db, request.ip, 'signup error', `Signup error: ${request.body.name} <${request.body.email}>`);
 				return reply.code(400).view("signup.eta", {
 					feedback: feedback,
 					name: request.body.name,
@@ -89,16 +91,24 @@ export default (
 			}>,
 			reply
 		) => {
+			let feedback = 'Sorry, your login was incorrect.';
 			try {
 				let user = User.load(app.db, request.body.email);
 				let valid = await user.checkPassword(request.body.password);
+				User.checkAuthErrors(app.db, request.ip, 'login'); // throws on too many login errors
 				if (valid) {
 					request.session.set("user.id", user.data.id);
+					User.authLog(app.db, request.ip, 'login', `Login: ${user.data.email}`);
 					return reply.redirect("/");
 				}
-			} catch (err) {}
+			} catch (err) {
+				if (err instanceof Error) {
+					feedback = err.message;
+				}
+			}
+			User.authLog(app.db, request.ip, 'login error', `Login error: ${request.body.email}`);
 			return reply.code(400).view("login.eta", {
-				feedback: "Sorry, your login was incorrect.",
+				feedback: feedback,
 				email: request.body.email,
 				password: request.body.password,
 			});
@@ -106,7 +116,10 @@ export default (
 	);
 
 	app.get("/logout", (request, reply) => {
-		request.session.delete();
+		if (request.user) {
+			User.authLog(app.db, request.ip, 'logout', `Logout: ${request.user.data.email}`);
+			request.session.delete();
+		}
 		reply.redirect("/login");
 	});
 
@@ -137,11 +150,13 @@ export default (
 			}
 			let user = User.load(app.db, request.body.email);
 			id = user.resetPassword();
+			User.authLog(app.db, request.ip, 'password reset start', `Password reset start: ${request.body.email}`);
 		} catch (err) {
 			let feedback = "Error: something unexpected happened.";
 			if (err instanceof Error) {
 				feedback = err.message;
 			}
+			User.authLog(app.db, request.ip, 'password reset error', `Password reset error: ${request.body.email}`);
 			return reply.code(400).view("password.eta", {
 				feedback: feedback,
 				email: request.body.email
@@ -172,12 +187,11 @@ export default (
 		}>, reply) => {
 			try {
 				const user = User.verifyPasswordReset(app.db, request.params.id, request.body.code);
-				app.db.passwordReset.update(request.params.id, {
-					status: 'claimed',
-				});
 				request.session.set("user.id", user.data.id);
+				User.authLog(app.db, request.ip, 'password reset code verified', `Password reset code verified: ${user.data.email}`);
 				return reply.redirect(`/password/reset`);
 			} catch (err) {
+				User.authLog(app.db, request.ip, 'password reset error', `Password reset code error: ${request.body.code}`);
 				return reply.code(400).view("passwordVerify.eta", {
 					id: request.params.id,
 					title: `Password Reset - ${app.getOption(
@@ -210,6 +224,7 @@ export default (
 	}>, reply) => {
 		let response;
 		if (!request.user) {
+			User.authLog(app.db, request.ip, 'password reset error', 'Password reset error (user not found).');
 			return reply.view("passwordDone.eta", {
 				feedback: 'Sorry, there was a problem loading your user. Your password cannot be reset.',
 				title: `Password Reset - ${app.getOption(
@@ -224,6 +239,7 @@ export default (
 			}
 			User.validatePassword(request.body.password);
 			await request.user.setPassword(request.body.password);
+			User.authLog(app.db, request.ip, 'password reset success', `Password reset success: ${request.user.data.email}`);
 			return reply.view("passwordDone.eta", {
 				feedback: 'Success! Your password has been reset.',
 				title: `Password Reset - ${app.getOption(
@@ -236,6 +252,7 @@ export default (
 			if (err instanceof Error) {
 				feedback = err.message;
 			}
+			User.authLog(app.db, request.ip, 'password reset error', `Password reset error (${feedback}): ${request.user.data.email}`);
 			return reply.code(400).view("passwordReset.eta", {
 				feedback: feedback,
 				title: `Password Reset - ${app.getOption(
