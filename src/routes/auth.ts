@@ -36,17 +36,15 @@ export default (
 				// if (! app.site.signupEnabled) {
 				// 	throw new Error('Sorry, you cannot sign up for a new account.');
 				// }
+				User.checkAuthErrors(app.db, request.ip, 'signup'); // throws on too many signup errors
 				let user = await User.create(app.db, {
 					id: 0,
 					name: request.body.name,
 					email: request.body.email,
 					password: request.body.password,
 				} as UserRow);
-				app.log.info(
-					`Created user '${user.data.email}' (${user.data.id})`
-				);
 				request.session.set("user.id", user.data.id);
-				User.authLog(app.db, request.ip, 'signup', `Signup: ${request.body.name} <${request.body.email}>`);
+				User.authLog(app.db, request.ip, 'signup', `Signup: ${request.body.name} <${request.body.email}> (${user.data.id})`);
 				// if (!app.getOption('site.initialized')) {
 				// 	app.setOption("site.initialized", 1);
 				// 	return reply.redirect("/settings");
@@ -93,9 +91,9 @@ export default (
 		) => {
 			let feedback = 'Sorry, your login was incorrect.';
 			try {
+				User.checkAuthErrors(app.db, request.ip, 'login'); // throws on too many login errors
 				let user = User.load(app.db, request.body.email);
 				let valid = await user.checkPassword(request.body.password);
-				User.checkAuthErrors(app.db, request.ip, 'login'); // throws on too many login errors
 				if (valid) {
 					request.session.set("user.id", user.data.id);
 					User.authLog(app.db, request.ip, 'login', `Login: ${user.data.email}`);
@@ -142,6 +140,7 @@ export default (
 	) => {
 		let id;
 		try {
+			User.checkAuthErrors(app.db, request.ip, 'password reset'); // throws on too many password reset errors
 			if (request.body.email == '') {
 				throw new Error('Please enter an email address.');
 			}
@@ -158,6 +157,10 @@ export default (
 			}
 			User.authLog(app.db, request.ip, 'password reset error', `Password reset error: ${request.body.email}`);
 			return reply.code(400).view("password.eta", {
+				title: `Password Reset - ${app.getOption(
+					"site.title",
+					"neighbor.group"
+				)}`,
 				feedback: feedback,
 				email: request.body.email
 			});
@@ -186,6 +189,7 @@ export default (
 			Body: { code: string };
 		}>, reply) => {
 			try {
+				User.checkAuthErrors(app.db, request.ip, 'password reset'); // throws on too many password reset errors
 				const user = User.verifyPasswordReset(app.db, request.params.id, request.body.code);
 				request.session.set("user.id", user.data.id);
 				User.authLog(app.db, request.ip, 'password reset code verified', `Password reset code verified: ${user.data.email}`);
@@ -226,7 +230,7 @@ export default (
 		if (!request.user) {
 			User.authLog(app.db, request.ip, 'password reset error', 'Password reset error (user not found).');
 			return reply.view("passwordDone.eta", {
-				feedback: 'Sorry, there was a problem loading your user. Your password cannot be reset.',
+				feedback: 'Sorry, your password cannot be reset.',
 				title: `Password Reset - ${app.getOption(
 					"site.title",
 					"neighbor.group"
@@ -234,6 +238,7 @@ export default (
 			});
 		}
 		try {
+			User.checkAuthErrors(app.db, request.ip, 'password reset'); // throws on too many password reset errors
 			if (request.body.password !== request.body.password2) {
 				throw new Error('Sorry, your passwords did not match.');
 			}
