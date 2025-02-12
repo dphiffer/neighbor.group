@@ -21,10 +21,10 @@ describe("user model", () => {
 			name: "test",
 			email: "test@test.test",
 			slug: "test",
-			password: "test-test-test",
+			password: "Test 1 two",
 		});
 		expect(user.data.name).toBe("test");
-		expect(user.data.password).not.toBe("test-test-test"); // hashed
+		expect(user.data.password).not.toBe("Test 1 two"); // hashed
 	});
 
 	test("create invalid user", async () => {
@@ -35,7 +35,7 @@ describe("user model", () => {
 					name: "test",
 					email: "test(a)test.test", // no @ sign
 					slug: "test",
-					password: "test-test-test",
+					password: "Test 1 two",
 				})
 			).toThrow();
 		} catch (_) {}
@@ -46,7 +46,7 @@ describe("user model", () => {
 					name: "", // no name set
 					email: "test@test.test",
 					slug: "test",
-					password: "test-test-test",
+					password: "Test 1 two",
 				})
 			).toThrow();
 		} catch (_) {}
@@ -93,7 +93,7 @@ describe("user model", () => {
 			id: 0,
 			name: "test",
 			email: "test-deletion@test.test",
-			password: "test-test-test",
+			password: "Test 1 two",
 		});
 		user.delete();
 		try {

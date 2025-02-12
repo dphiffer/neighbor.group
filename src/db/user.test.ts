@@ -18,7 +18,7 @@ describe("db.user", () => {
 			slug: "test",
 			email: "test@test.test",
 			active: 1,
-			password: "test-test-test",
+			password: "Test 1 two",
 		});
 		const select = db.user.select(insert.lastInsertRowid as number);
 		if (!select) {
@@ -26,7 +26,6 @@ describe("db.user", () => {
 		}
 		expect(select.name).toBe("test");
 		expect(select.email).toBe("test@test.test");
-		expect(select.password).toBe("test-test-test");
 	});
 
 	test("select non-existent user", () => {

@@ -64,7 +64,7 @@ describe("plugin", () => {
 			id: 0,
 			name: "test",
 			email: "test@test.test",
-			password: "test-test-test",
+			password: "Test 1 two",
 		});
 		const mockRequest = {
 			session: {

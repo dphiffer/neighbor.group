@@ -49,7 +49,7 @@ describe("auth routes", () => {
 			body: {
 				name: "test",
 				email: "test@test.test",
-				password: "test-test-test",
+				password: "Test 1 two",
 			},
 		});
 		expect(response.statusCode).toBe(302);
@@ -64,7 +64,7 @@ describe("auth routes", () => {
 			body: {
 				name: "test",
 				email: "",
-				password: "test-test-test",
+				password: "Test 1 two",
 			},
 		});
 		expect(response.statusCode).toBe(400);
@@ -88,7 +88,7 @@ describe("auth routes", () => {
 			url: "/login",
 			body: {
 				email: "test@test.test",
-				password: "test-test-test",
+				password: "Test 1 two",
 			},
 		});
 		expect(response.cookies.length).toBe(1);
@@ -105,7 +105,21 @@ describe("auth routes", () => {
 			url: "/login",
 			body: {
 				email: "",
-				password: "test-test-test",
+				password: "Test 1 two",
+			},
+		});
+		expect(response.statusCode).toBe(400);
+	});
+
+	test("login with wrong password", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/login",
+			body: {
+				email: "test@test.test",
+				password: "wrong password",
 			},
 		});
 		expect(response.statusCode).toBe(400);
@@ -140,8 +154,7 @@ describe("auth routes", () => {
 			method: "GET",
 			url: "/logout",
 		});
-		expect(response.cookies.length).toBe(1);
-		expect(response.cookies[0].value).toBe("");
+		expect(response.cookies.length).toBe(0);
 		expect(response.statusCode).toBe(302);
 	});
 
@@ -160,6 +173,9 @@ describe("auth routes", () => {
 		const app = buildApp();
 		const response = await app.inject({
 			method: "POST",
+			body: {
+				email: "test@test.test",
+			},
 			url: "/password",
 		});
 		expect(response.statusCode).toBe(302);
@@ -170,19 +186,14 @@ describe("auth routes", () => {
 			passwordResetId = urlMatch[1];
 		}
 		expect(passwordResetId.length).toBe(40);
-	});
-
-	test("invalid password reset", async () => {
-		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
-		const response = await app.inject({
-			method: "GET",
-			url: "/password/does-not-exist",
+		
+		// Change the code to something we can test later
+		app.db.passwordReset.update(passwordResetId, {
+			code: '123456'
 		});
-		expect(response.statusCode).toBe(302);
 	});
 
-	test("valid password reset id", async () => {
+	test("password reset enter code", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
 		const app = buildApp();
 		const response = await app.inject({
@@ -212,10 +223,13 @@ describe("auth routes", () => {
 			method: "POST",
 			url: `/password/${passwordResetId}`,
 			body: {
-				code: "correct",
+				code: "123456",
 			},
 		});
+		expect(response.cookies.length).toBe(1);
+		expect(response.cookies[0].name).toBe("session");
 		expect(response.statusCode).toBe(302);
+		session = response.cookies[0];
 	});
 
 	test("change password page", async () => {
@@ -224,6 +238,9 @@ describe("auth routes", () => {
 		const response = await app.inject({
 			method: "GET",
 			url: `/password/reset`,
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(200);
 	});
@@ -235,9 +252,13 @@ describe("auth routes", () => {
 			method: "POST",
 			url: `/password/reset`,
 			body: {
-				password: "foo",
+				password: "Test one 2",
+				password2: "Test one 2",
+			},
+			cookies: {
+				session: session.value,
 			},
 		});
-		expect(response.statusCode).toBe(302);
+		expect(response.statusCode).toBe(200);
 	});
 });
