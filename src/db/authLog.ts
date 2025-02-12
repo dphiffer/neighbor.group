@@ -15,41 +15,6 @@ export default class AuthLogQueries {
 		this.db = db;
 	}
 
-	getRecentErrors(ipAddress: string, event: string) {
-		const now = new Date();
-		const yyyy = now.getUTCFullYear();
-		const m = now.getUTCMonth();
-		const mm = (m < 10) ? `0${m}` : m;
-		const d = now.getUTCDay();
-		const dd = (d < 10) ? `0${d}` : d;
-		const stmt = this.db.prepare(`
-			SELECT *
-			FROM auth_log
-			WHERE ip_address = $ipAddress
-			  AND event = $event
-			  AND created > $today
-			ORDER BY created DESC
-		`);
-		return stmt.all({
-			ipAddress: ipAddress,
-			event: `${event} error`,
-			today: `${yyyy}-${mm}-${dd} 00:00:00`
-		}) as AuthLogRow[];
-	}
-
-	select(id: string) {
-		let stmt = this.db.prepare(`
-			SELECT *
-			FROM auth_log
-			WHERE id = ?
-		`);
-		let row = stmt.get(id) as AuthLogRow | null;
-		if (!row) {
-			return null;
-		}
-		return row;
-	}
-
 	insert(values: Partial<AuthLogRow>) {
 		const cols = [];
 		const placeholders = [];
@@ -65,5 +30,22 @@ export default class AuthLogQueries {
 			VALUES (${placeholders.join(", ")}, CURRENT_TIMESTAMP)
 		`);
 		return stmt.run(values);
+	}
+
+	getRecentErrors(ipAddress: string, event: string) {
+		const today = new Date().toISOString().substring(0, 10);
+		const stmt = this.db.prepare(`
+			SELECT *
+			FROM auth_log
+			WHERE ip_address = $ipAddress
+			  AND event = $event
+			  AND created > $today
+			ORDER BY created DESC
+		`);
+		return stmt.all({
+			ipAddress: ipAddress,
+			event: `${event} error`,
+			today: `${today} 00:00:00`
+		}) as AuthLogRow[];
 	}
 }

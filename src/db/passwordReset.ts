@@ -16,19 +16,6 @@ export default class PasswordResetQueries {
 		this.db = db;
 	}
 
-	select(id: string) {
-		let stmt = this.db.prepare(`
-			SELECT *
-			FROM password_reset
-			WHERE id = ?
-		`);
-		let row = stmt.get(id) as PasswordResetRow | null;
-		if (!row) {
-			return null;
-		}
-		return row;
-	}
-
 	insert(values: Partial<PasswordResetRow>) {
 		const cols = [];
 		const placeholders = [];
@@ -45,6 +32,19 @@ export default class PasswordResetQueries {
 			VALUES (${placeholders.join(", ")}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 		`);
 		return stmt.run(values);
+	}
+
+	select(id: string) {
+		let stmt = this.db.prepare(`
+			SELECT *
+			FROM password_reset
+			WHERE id = ?
+		`);
+		let row = stmt.get(id) as PasswordResetRow | null;
+		if (!row) {
+			return null;
+		}
+		return row;
 	}
 
 	update(id: string, values: Partial<PasswordResetRow>) {
