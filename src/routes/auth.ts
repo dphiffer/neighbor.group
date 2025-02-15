@@ -106,6 +106,7 @@ export default (
 			}
 			User.authLog(app.db, request.ip, 'login error', `Login error: ${request.body.email}`);
 			return reply.code(400).view("login.eta", {
+				title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
 				feedback: feedback,
 				email: request.body.email,
 				password: request.body.password,
@@ -229,7 +230,7 @@ export default (
 		let response;
 		if (!request.user) {
 			User.authLog(app.db, request.ip, 'password reset error', 'Password reset error (user not found).');
-			return reply.view("passwordDone.eta", {
+			return reply.code(400).view("passwordDone.eta", {
 				feedback: 'Sorry, your password cannot be reset.',
 				title: `Password Reset - ${app.getOption(
 					"site.title",

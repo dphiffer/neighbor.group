@@ -12,7 +12,7 @@ afterAll(async () => {
 
 describe("db.password_reset", () => {
 	test("insert password reset entry", () => {
-		const db = new DatabaseConnection("test-db-auth-log.db");
+		const db = new DatabaseConnection("test-db-password-reset.db");
 		const result = db.passwordReset.insert({
 			id: 'hard-to-guess-password-reset-id',
 			user_id: 1,
@@ -23,13 +23,13 @@ describe("db.password_reset", () => {
 	});
 
 	test("select invalid password reset entry", () => {
-		const db = new DatabaseConnection("test-db-auth-log.db");
+		const db = new DatabaseConnection("test-db-password-reset.db");
 		const result = db.passwordReset.select('does-not-exist');
 		expect(result).toBeNull();
 	});
 
 	test("select valid password reset entry", () => {
-		const db = new DatabaseConnection("test-db-auth-log.db");
+		const db = new DatabaseConnection("test-db-password-reset.db");
 		const result = db.passwordReset.select('hard-to-guess-password-reset-id');
 		expect(typeof result).toBe('object');
 	});

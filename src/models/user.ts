@@ -3,7 +3,7 @@ import DatabaseConnection from "../db";
 import { UserRow } from "../db/user";
 import * as crypto from "node:crypto";
 
-const dailyErrorLimits = {
+export const dailyErrorLimits = {
 	signup: 5,
 	login: 5,
 	'password reset': 5
@@ -99,9 +99,6 @@ export default class UserModel {
 			throw new Error('Invalid password reset');
 		}
 		const user = UserModel.load(db, passwordReset.user_id);
-		if (!user) {
-			throw new Error('Invalid password reset');
-		}
 		db.passwordReset.update(id, {
 			status: 'claimed',
 		});
@@ -109,11 +106,6 @@ export default class UserModel {
 	}
 
 	static authLog(db: DatabaseConnection, ipAddress: string, event: string, description: string) {
-		const limitReached = db.authLog.getRecentErrors(ipAddress, `${event} daily limit`);
-		if (limitReached.length > 0) {
-			// Don't fill the logs with errors if we've already reached the daily limit
-			return;
-		}
 		return db.authLog.insert({
 			ip_address: ipAddress,
 			event: event,
