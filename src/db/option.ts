@@ -1,6 +1,6 @@
 import { Database } from "better-sqlite3";
 
-export interface Option {
+export interface OptionRow {
 	key: string;
 	value: string;
 	created: Date;
@@ -19,7 +19,7 @@ export default class OptionQueries {
 			SELECT *
 			FROM option
 		`);
-		return stmt.all() as Option[];
+		return stmt.all() as OptionRow[];
 	}
 
 	select(key: string) {
@@ -28,11 +28,11 @@ export default class OptionQueries {
 			FROM option
 			WHERE key = ?
 		`);
-		let option = stmt.get(key) as Option | null;
-		if (!option) {
+		let row = stmt.get(key) as OptionRow | null;
+		if (!row) {
 			return null;
 		}
-		return option;
+		return row;
 	}
 
 	insert(key: string, value: string) {

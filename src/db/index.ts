@@ -3,15 +3,25 @@ import fs from "fs";
 import { glob } from "glob";
 import path from "path";
 import OptionQueries from "./option";
+import UserQueries from "./user";
+import PasswordResetQueries from "./passwordReset";
+import AuthLogQueries from "./authLog";
 
 export default class DatabaseConnection {
 	conn: Database;
 	option: OptionQueries;
+	user: UserQueries;
+	passwordReset: PasswordResetQueries;
+	authLog: AuthLogQueries;
+
 	static connections: Database[] = [];
 
 	constructor(name: string) {
 		this.conn = DatabaseConnection.getConnection(name);
 		this.option = new OptionQueries(this.conn);
+		this.user = new UserQueries(this.conn);
+		this.passwordReset = new PasswordResetQueries(this.conn);
+		this.authLog = new AuthLogQueries(this.conn);
 	}
 
 	static getConnection(name: string) {

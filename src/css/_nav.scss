@@ -1,0 +1,19 @@
+@use 'variables' as *;
+
+.header-nav {
+    padding: 10px 17px;
+    font-size: 20px;
+
+    h1 {
+        font-size: 20px;
+    }
+
+    a {
+        transition: 0.2s opacity ease-out;
+        opacity: 0.9;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}

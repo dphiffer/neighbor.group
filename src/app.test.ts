@@ -1,10 +1,35 @@
-import { describe, expect, test } from "@jest/globals";
-import buildApp from "../src/app";
+import {
+	jest,
+	describe,
+	expect,
+	test,
+	beforeAll,
+	beforeEach,
+	afterAll,
+} from "@jest/globals";
+import buildApp from "./app";
+import { rimraf } from "rimraf";
 
 describe("app", () => {
-	const app = buildApp();
+	const ORIG_ENV = process.env;
+
+	beforeAll(async () => {
+		await rimraf("./data/test-app.db");
+	});
+
+	beforeEach(() => {
+		jest.resetModules();
+		process.env = { ...ORIG_ENV };
+	});
+
+	afterAll(async () => {
+		process.env = ORIG_ENV;
+		await rimraf("./data/test-app.db");
+	});
 
 	test("home page", async () => {
+		process.env.DATABASE = "test-app.db";
+		const app = buildApp();
 		const rsp = await app.inject({
 			method: "GET",
 			url: "/",
@@ -13,6 +38,8 @@ describe("app", () => {
 	});
 
 	test("health check endpoint", async () => {
+		process.env.DATABASE = "test-app.db";
+		const app = buildApp();
 		const rsp = await app.inject({
 			method: "GET",
 			url: "/_health-check",

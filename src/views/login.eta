@@ -1,0 +1,27 @@
+<%~ include('partials/nav', { siteTitle: it.siteTitle }) %>
+<div class="login">
+	<form action="/login" method="post" class="login__form">
+		<input type="hidden" name="redirect" value="<%= it.redirect %>">
+		<h2>Login to your account</h2>
+		<label>
+			Email address
+			<input type="email" name="email" value="<%= it.email %>">
+		</label>
+		<label>
+			Password
+			<input type="password" name="password" value="<%= it.password %>">
+		</label>
+		<% if (it.feedback) { %>
+			<div class="feedback">
+				<%= it.feedback %>
+			</div>
+		<% } %>
+		<input type="submit" value="Login">
+	</form>
+	<div class="login__options">
+		<a href="/password">Forget your password?</a>
+        <% if (it.signupEnabled) { %>
+		    <a href="/signup">Sign up for a new account</a>
+        <% } %>
+	</div>
+</div>
