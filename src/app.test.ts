@@ -29,7 +29,7 @@ describe("app", () => {
 
 	test("home page", async () => {
 		process.env.DATABASE = "test-app.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const rsp = await app.inject({
 			method: "GET",
 			url: "/",
@@ -39,7 +39,7 @@ describe("app", () => {
 
 	test("health check endpoint", async () => {
 		process.env.DATABASE = "test-app.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const rsp = await app.inject({
 			method: "GET",
 			url: "/_health-check",
