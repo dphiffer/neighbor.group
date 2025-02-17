@@ -8,6 +8,7 @@ declare module "fastify" {
 		db: DatabaseConnection;
 		setOption(key: string, value: string): void;
 		getOption(key: string, defaultValue?: string | null): string;
+		sendMail(to: string, subject: string, htmlBody: string): boolean;
 	}
 	export interface FastifyRequest {
 		user: User | null;
