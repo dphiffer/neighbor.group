@@ -139,7 +139,7 @@ export default (
 		}>,
 		reply
 	) => {
-		let id;
+		let id, code;
 		try {
 			User.checkAuthErrors(app.db, request.ip, 'password reset'); // throws on too many password reset errors
 			if (request.body.email == '') {
@@ -149,8 +149,9 @@ export default (
 				throw new Error('Please enter a valid email address.');
 			}
 			let user = User.load(app.db, request.body.email);
-			id = user.resetPassword();
+			[id, code] = user.resetPassword();
 			User.authLog(app.db, request.ip, 'password reset start', `Password reset start: ${request.body.email}`);
+			app.sendMail(request.body.email, 'neighbor.group password reset', `Your password reset code is: <b>${code}</b>`);
 		} catch (err) {
 			let feedback = "Error: something unexpected happened.";
 			if (err instanceof Error) {

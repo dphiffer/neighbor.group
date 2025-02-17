@@ -12,7 +12,7 @@ export type AppOptions = {
 	logger?: boolean | PinoLoggerOptions;
 };
 
-export default function buildApp(options: AppOptions = {}) {
+export default async function buildApp(options: AppOptions = {}) {
 	const app = fastify(options);
 
 	app.register(fastifyView, {
@@ -39,8 +39,8 @@ export default function buildApp(options: AppOptions = {}) {
 
 	app.register(fastifyFormbody);
 
-	app.register(sitePlugin);
-	app.register(siteRoutes);
+	await app.register(sitePlugin);
+	await app.register(siteRoutes);
 
 	return app;
 }
