@@ -22,8 +22,8 @@ npm run dev
 -   `DATABASE`: name of the site database file (default `main.db`)
 -   `EMAIL_FROM`: the email "from" address for emails like password resets
 -   `SMTP_HOST`: hostname of the SMTP server
--   `SMTP_PORT`: SMTP server port number (default: `465`)
--   `SMTP_SECURE`: whether to connect to SMTP using SSL (default: `true`)
+-   `SMTP_PORT`: SMTP server port number
+-   `SMTP_SECURE`: whether to connect to SMTP using SSL
 -   `SMTP_USER`: SMTP username
 -   `SMTP_PASS`: SMTP password
 

@@ -41,13 +41,15 @@ export class SitePlugin {
 		this.emailFrom = process.env.EMAIL_FROM || null;
 		this.smtpTransport = null;
 		if (!process.env.SMTP_HOST || process.env.SMTP_HOST == 'xxxx' ||
+			!process.env.SMTP_PORT || !process.env.SMTP_SECURE ||
+			!process.env.SMTP_PORT || process.env.SMTP_PORT == 'xxxx' ||
 			!process.env.SMTP_USER || process.env.SMTP_USER == 'xxxx' ||
 			!process.env.SMTP_PASS || process.env.SMTP_PASS == 'xxxx') {
 			return;
 		} else {
 			this.smtpTransport = nodemailer.createTransport({
 				host: process.env.SMTP_HOST,
-				port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465,
+				port: parseInt(process.env.SMTP_PORT),
 				secure: (process.env.SMTP_SECURE == "true"),
 				auth: {
 					user: process.env.SMTP_USER,
@@ -103,7 +105,6 @@ export class SitePlugin {
 			};
 			this.smtpTransport.sendMail(message, (error, _) => {
 				if (error) {
-					console.error(error);
 					throw new Error('Error sending email.');
 				}
 			});
@@ -118,7 +119,7 @@ export function getDatabasePath() {
 	return process.env.DATABASE || "main.db";
 }
 
-export default fastifyPlugin(async (app: FastifyInstance) => {
+export default fastifyPlugin((app, _, done) => {
 	const dbPath = getDatabasePath();
 	const sitePlugin = new SitePlugin(dbPath, app);
 	app.decorate("db", sitePlugin.db);
@@ -126,4 +127,5 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 	app.decorate("getOption", sitePlugin.getOption.bind(sitePlugin));
 	app.decorate("sendMail", sitePlugin.sendMail.bind(sitePlugin));
 	app.decorateRequest("user", null);
+	done();
 });
