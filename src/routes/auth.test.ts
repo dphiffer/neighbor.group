@@ -11,6 +11,13 @@ import buildApp from "../app";
 import { rimraf } from "rimraf";
 import { Cookie } from "fastify";
 
+const nodemailer = require("nodemailer"); // doesn't work with import.
+jest.mock("nodemailer");
+const sendMailMock = jest.fn();
+nodemailer.createTransport.mockReturnValue({
+	sendMail: sendMailMock
+});
+
 describe("auth routes", () => {
 	const ORIG_ENV = process.env;
 	let session: Cookie;
@@ -23,6 +30,8 @@ describe("auth routes", () => {
 	beforeEach(() => {
 		jest.resetModules();
 		process.env = { ...ORIG_ENV };
+		sendMailMock.mockClear();
+		nodemailer.createTransport.mockClear();
 	});
 
 	afterAll(async () => {
@@ -32,7 +41,7 @@ describe("auth routes", () => {
 
 	test("load signup page", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/signup",
@@ -42,7 +51,7 @@ describe("auth routes", () => {
 
 	test("signup submission", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: "/signup",
@@ -57,7 +66,7 @@ describe("auth routes", () => {
 
 	test("invalid signup submission", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: "/signup",
@@ -72,7 +81,7 @@ describe("auth routes", () => {
 
 	test("load login page", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/login",
@@ -82,7 +91,7 @@ describe("auth routes", () => {
 
 	test("login submission", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: "/login",
@@ -99,7 +108,7 @@ describe("auth routes", () => {
 
 	test("invalid login submission", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: "/login",
@@ -113,7 +122,7 @@ describe("auth routes", () => {
 
 	test("login with wrong password", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: "/login",
@@ -127,7 +136,7 @@ describe("auth routes", () => {
 
 	test("redirect logged in users", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/login",
@@ -149,7 +158,7 @@ describe("auth routes", () => {
 
 	test("logout", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/logout",
@@ -164,7 +173,7 @@ describe("auth routes", () => {
 
 	test("load password reset page", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/password",
@@ -172,9 +181,18 @@ describe("auth routes", () => {
 		expect(response.statusCode).toBe(200);
 	});
 
-	test("start password reset", async () => {
+	test("start valid password reset", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		process.env.EMAIL_FROM = "test@test.test";
+		process.env.SMTP_HOST = "test.test";
+		process.env.SMTP_PORT = "465";
+		process.env.SMTP_SECURE = "true";
+		process.env.SMTP_USER = "test";
+		process.env.SMTP_PASS = "test";
+		const app = await buildApp();
+		sendMailMock.mockImplementation((message: any, callback: any) => {
+			callback(false, null);
+		});
 		const response = await app.inject({
 			method: "POST",
 			body: {
@@ -190,6 +208,7 @@ describe("auth routes", () => {
 			passwordResetId = urlMatch[1];
 		}
 		expect(passwordResetId.length).toBe(40);
+		expect(sendMailMock).toHaveBeenCalled();
 		
 		// Change the code to something we can test later
 		app.db.passwordReset.update(passwordResetId, {
@@ -197,9 +216,65 @@ describe("auth routes", () => {
 		});
 	});
 
+	test("password reset enter code", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: `/password/${passwordResetId}`,
+		});
+		expect(response.statusCode).toBe(200);
+	});
+
+	test("valid password reset code", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: `/password/${passwordResetId}`,
+			body: {
+				code: "123456",
+			},
+		});
+		expect(response.cookies.length).toBe(1);
+		expect(response.cookies[0].name).toBe("session");
+		expect(response.statusCode).toBe(302);
+		session = response.cookies[0];
+	});
+
+	test("change password page", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: `/password/reset`,
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response.statusCode).toBe(200);
+	});
+
+	test("change password submission", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: `/password/reset`,
+			body: {
+				password: "Test one 2",
+				password2: "Test one 2",
+			},
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response.statusCode).toBe(200);
+	});
+
 	test("invalid password resets", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		let response = await app.inject({
 			method: "POST",
 			body: {
@@ -219,9 +294,44 @@ describe("auth routes", () => {
 		expect(response.statusCode).toBe(400);
 	});
 
+	test("password reset when email isn't configured", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			body: {
+				email: "test@test.test",
+			},
+			url: "/password",
+		});
+		expect(response.statusCode).toBe(400);
+	});
+
+	test("password reset email send error", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		process.env.EMAIL_FROM = "test@test.test";
+		process.env.SMTP_HOST = "test.test";
+		process.env.SMTP_PORT = "465";
+		process.env.SMTP_SECURE = "true";
+		process.env.SMTP_USER = "test";
+		process.env.SMTP_PASS = "test";
+		const app = await buildApp();
+		sendMailMock.mockImplementation((message: any, callback: any) => {
+			callback(new Error('The email message did not send.'), null);
+		});
+		const response = await app.inject({
+			method: "POST",
+			body: {
+				email: "test@test.test",
+			},
+			url: "/password",
+		});
+		expect(response.statusCode).toBe(400);
+	});
+
 	test("password reset as authenticated user", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/password/reset-id",
@@ -232,19 +342,9 @@ describe("auth routes", () => {
 		expect(response.statusCode).toBe(302);
 	});
 
-	test("password reset enter code", async () => {
-		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
-		const response = await app.inject({
-			method: "GET",
-			url: `/password/${passwordResetId}`,
-		});
-		expect(response.statusCode).toBe(200);
-	});
-
 	test("invalid password reset code", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: `/password/${passwordResetId}`,
@@ -255,38 +355,9 @@ describe("auth routes", () => {
 		expect(response.statusCode).toBe(400);
 	});
 
-	test("valid password reset code", async () => {
-		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
-		const response = await app.inject({
-			method: "POST",
-			url: `/password/${passwordResetId}`,
-			body: {
-				code: "123456",
-			},
-		});
-		expect(response.cookies.length).toBe(1);
-		expect(response.cookies[0].name).toBe("session");
-		expect(response.statusCode).toBe(302);
-		session = response.cookies[0];
-	});
-
-	test("change password page", async () => {
-		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
-		const response = await app.inject({
-			method: "GET",
-			url: `/password/reset`,
-			cookies: {
-				session: session.value,
-			},
-		});
-		expect(response.statusCode).toBe(200);
-	});
-
 	test("change password as non-authenticated user", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "GET",
 			url: "/password/reset",
@@ -294,26 +365,10 @@ describe("auth routes", () => {
 		expect(response.statusCode).toBe(302);
 	});
 
-	test("change password submission", async () => {
-		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
-		const response = await app.inject({
-			method: "POST",
-			url: `/password/reset`,
-			body: {
-				password: "Test one 2",
-				password2: "Test one 2",
-			},
-			cookies: {
-				session: session.value,
-			},
-		});
-		expect(response.statusCode).toBe(200);
-	});
-
 	test("change password submission, passwords don't match", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
+		app.db.conn.exec("DELETE FROM auth_log");
 		const response = await app.inject({
 			method: "POST",
 			url: `/password/reset`,
@@ -330,7 +385,7 @@ describe("auth routes", () => {
 
 	test("change password submission as non-authenticated user", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
-		const app = buildApp();
+		const app = await buildApp();
 		const response = await app.inject({
 			method: "POST",
 			url: "/password/reset",
