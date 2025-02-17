@@ -145,14 +145,13 @@ export default class UserModel {
 	resetPassword() {
 		const id = UserModel.getVerificationId();
 		const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
-		console.log(`Password reset use code: ${code}`);
 		const result = this.db.passwordReset.insert({
 			id: id,
 			user_id: this.data.id,
 			code: code,
 			status: 'unclaimed',
 		});
-		return id;
+		return [id, code];
 	}
 
 	delete() {
