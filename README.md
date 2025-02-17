@@ -20,6 +20,12 @@ npm run dev
 -   `PORT`: what port number the server runs on (default `3000`)
 -   `HOST`: which hostname or IP to listen from (default `0.0.0.0`)
 -   `DATABASE`: name of the site database file (default `main.db`)
+-   `EMAIL_FROM`: the email "from" address for emails like password resets
+-   `SMTP_HOST`: hostname of the SMTP server
+-   `SMTP_PORT`: SMTP server port number (default: `465`)
+-   `SMTP_SECURE`: whether to connect to SMTP using SSL (default: `true`)
+-   `SMTP_USER`: SMTP username
+-   `SMTP_PASS`: SMTP password
 
 ## Authentication
 
