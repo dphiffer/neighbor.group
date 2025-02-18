@@ -5,12 +5,10 @@ Local group collaboration
 ## Dependencies
 
 -   Node.js v22
--   nvm
 
 ## Development setup
 
 ```
-nvm use
 npm install
 npm run dev
 ```
@@ -29,10 +27,4 @@ npm run dev
 
 ## Authentication
 
-Currently neighbor.group relies on an email/password login. Password resets are available for forgotten passwords. There are some limits built in, currently hardcoded:
-
-- 5 login errors per IP address/day
-- 5 signup errors per IP address/day
-- 5 password reset errors per IP address/day
-
-If you hit the daily error limit you will need to wait until the next day to try again. These may need to be adjusted once the software sees some actual use.
+Neighbor.group relies on an email/password login. Password resets rely on email for forgotten passwords, which means configuring an SMTP server is essential for a working website.

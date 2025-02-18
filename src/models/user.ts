@@ -95,7 +95,7 @@ export default class UserModel {
 
 	static verifyPasswordReset(db: DatabaseConnection, id: string, code: string) {
 		const passwordReset = db.passwordReset.select(id);
-		if (!passwordReset || passwordReset.code !== code) {
+		if (!passwordReset || passwordReset.code !== code || passwordReset.status != 'unclaimed') {
 			throw new Error('Invalid password reset');
 		}
 		const user = UserModel.load(db, passwordReset.user_id);
