@@ -1,0 +1,29 @@
+{% extends "base.njk" %}
+
+{% block body %}
+{% include "partials/nav.njk" %}
+<div class="login">
+	<form action="/login" method="post" class="login__form">
+		<input type="hidden" name="redirect" value="{{ redirect }}">
+		<h2>Login to your account</h2>
+		<label>
+			Email address
+			<input type="email" name="email" value="{{ email }}">
+		</label>
+		<label>
+			Password
+			<input type="password" name="password" value="{{ password }}">
+		</label>
+		{% if feedback %}
+			<div class="feedback">
+				{{ feedback }}
+			</div>
+		{% endif %}
+		<input type="submit" value="Login">
+	</form>
+	<div class="login__options">
+		<a href="/password">Forget your password?</a>
+        <a href="/signup">Sign up for a new account</a>
+	</div>
+</div>
+{% endblock %}
