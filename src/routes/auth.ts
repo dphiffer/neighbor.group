@@ -17,7 +17,7 @@ export default (
 		if (request.user) {
 			return reply.redirect("/");
 		}
-		reply.view("signup.eta", {
+		reply.view("auth/signup.njk", {
 			title: `Sign up - ${app.getOption("site.title", "neighbor.group")}`,
 			redirect: "",
 			name: "",
@@ -56,7 +56,7 @@ export default (
 					feedback = err.message;
 				}
 				User.authLog(app.db, request.ip, 'signup error', `Signup error: ${request.body.name} <${request.body.email}>`);
-				return reply.code(400).view("signup.eta", {
+				return reply.code(400).view("auth/signup.njk", {
 					feedback: feedback,
 					name: request.body.name,
 					email: request.body.email,
@@ -71,7 +71,7 @@ export default (
 		if (request.user) {
 			return reply.redirect("/");
 		}
-		reply.view("login.eta", {
+		reply.view("auth/login.njk", {
 			title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
 			redirect: "",
 			email: "",
@@ -105,7 +105,7 @@ export default (
 				}
 			}
 			User.authLog(app.db, request.ip, 'login error', `Login error: ${request.body.email}`);
-			return reply.code(400).view("login.eta", {
+			return reply.code(400).view("auth/login.njk", {
 				title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
 				feedback: feedback,
 				email: request.body.email,
@@ -123,7 +123,7 @@ export default (
 	});
 
 	app.get("/password", (request, reply) => {
-		return reply.view("password.eta", {
+		return reply.view("auth/password.njk", {
 			title: `Password Reset - ${app.getOption(
 				"site.title",
 				"neighbor.group",
@@ -158,7 +158,7 @@ export default (
 				feedback = err.message;
 			}
 			User.authLog(app.db, request.ip, 'password reset error', `Password reset error: ${request.body.email}`);
-			return reply.code(400).view("password.eta", {
+			return reply.code(400).view("auth/password.njk", {
 				title: `Password Reset - ${app.getOption(
 					"site.title",
 					"neighbor.group"
@@ -176,7 +176,7 @@ export default (
 		if (request.user) {
 			return reply.redirect("/password/reset");
 		}
-		return reply.view("passwordVerify.eta", {
+		return reply.view("auth/passwordVerify.njk", {
 			id: request.params.id,
 			feedback: 'Please check your email for a verification code.',
 			title: `Password Reset - ${app.getOption(
@@ -198,7 +198,7 @@ export default (
 				return reply.redirect(`/password/reset`);
 			} catch (err) {
 				User.authLog(app.db, request.ip, 'password reset error', `Password reset code error: ${request.body.code}`);
-				return reply.code(400).view("passwordVerify.eta", {
+				return reply.code(400).view("auth/passwordVerify.njk", {
 					id: request.params.id,
 					title: `Password Reset - ${app.getOption(
 						"site.title",
@@ -213,7 +213,7 @@ export default (
 		if (!request.user) {
 			return reply.redirect("/password");
 		}
-		return reply.view("passwordReset.eta", {
+		return reply.view("auth/passwordReset.njk", {
 			feedback: '',
 			title: `Password Reset - ${app.getOption(
 				"site.title",
@@ -231,7 +231,7 @@ export default (
 		let response;
 		if (!request.user) {
 			User.authLog(app.db, request.ip, 'password reset error', 'Password reset error (user not found).');
-			return reply.code(400).view("passwordDone.eta", {
+			return reply.code(400).view("auth/passwordDone.njk", {
 				feedback: 'Sorry, your password cannot be reset.',
 				title: `Password Reset - ${app.getOption(
 					"site.title",
@@ -247,7 +247,7 @@ export default (
 			User.validatePassword(request.body.password);
 			await request.user.setPassword(request.body.password);
 			User.authLog(app.db, request.ip, 'password reset success', `Password reset success: ${request.user.data.email}`);
-			return reply.view("passwordDone.eta", {
+			return reply.view("auth/passwordDone.njk", {
 				feedback: 'Success! Your password has been reset.',
 				title: `Password Reset - ${app.getOption(
 					"site.title",
@@ -260,7 +260,7 @@ export default (
 				feedback = err.message;
 			}
 			User.authLog(app.db, request.ip, 'password reset error', `Password reset error (${feedback}): ${request.user.data.email}`);
-			return reply.code(400).view("passwordReset.eta", {
+			return reply.code(400).view("auth/passwordReset.njk", {
 				feedback: feedback,
 				title: `Password Reset - ${app.getOption(
 					"site.title",

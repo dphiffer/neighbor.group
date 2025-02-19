@@ -9,11 +9,11 @@ export default (
 	done: () => void
 ) => {
 	app.all("/", (_, reply) => {
-		reply.view("index.eta", {
+		reply.view("index.njk", {
 			title: app.getOption("site.title", "neighbor.group"),
 			intro: app.getOption(
 				"site.intro",
-				"A website for local groups."
+				"A website for <i>local</i> groups."
 			),
 		});
 	});

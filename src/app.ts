@@ -1,4 +1,5 @@
 import { Eta } from "eta";
+import nunjucks from "nunjucks";
 import fastify, { FastifyInstance } from "fastify";
 import fastifyView from "@fastify/view";
 import fastifyStatic from "@fastify/static";
@@ -15,12 +16,15 @@ export type AppOptions = {
 export default async function buildApp(options: AppOptions = {}) {
 	const app = fastify(options);
 
+	nunjucks.configure('views', {
+		autoescape: true
+	});
+
 	app.register(fastifyView, {
 		engine: {
-			eta: new Eta(),
+			nunjucks: nunjucks
 		},
 		root: path.join(path.dirname(__dirname), "src", "views"),
-		layout: "layout.eta",
 		defaultContext: {
 			siteTitle: "neighbor.group",
 		},
