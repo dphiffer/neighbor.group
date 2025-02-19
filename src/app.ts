@@ -1,4 +1,3 @@
-import { Eta } from "eta";
 import nunjucks from "nunjucks";
 import fastify, { FastifyInstance } from "fastify";
 import fastifyView from "@fastify/view";
