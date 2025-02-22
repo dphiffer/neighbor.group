@@ -1,0 +1,22 @@
+{% extends "base.njk" %}
+
+{% block body %}
+{% include "partials/nav.njk" %}
+<main class="new-group">
+	<form action="/new" method="post" class="new-group__form">
+		<h2>Create a new group</h2>
+		<label for="name">Name</label>
+		<input id="name" type="text" name="name" value="{{ name }}">
+		<label for="description">Description</label>
+		<textarea name="description" id="description" rows="5" cols="80">{{ description }}</textarea>
+		<label for="slug">URL</label>
+		<code>https://neighbor.group/</code><input id="slug" type="text" name="slug" value="{{ slug }}">
+		{% if feedback %}
+			<div class="feedback">
+				{{ feedback }}
+			</div>
+		{% endif %}
+		<input type="submit" value="Continue">
+	</form>
+</main>
+{% endblock %}

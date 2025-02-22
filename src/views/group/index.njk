@@ -1,0 +1,11 @@
+{% extends "base.njk" %}
+
+{% block body %}
+{% include "partials/nav.njk" %}
+<main>
+	<h2>{{ group.data.name }}</h2>
+	<div class="group__description">
+		{{ group.data.description }}
+	</div>
+</main>
+{% endblock %}
