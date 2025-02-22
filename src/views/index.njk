@@ -1,7 +1,7 @@
 {% extends "base.njk" %}
 
 {% block body %}
-<div class="home page">
+<main class="home page">
     <h1>{{ title }}</h1>
     <div class="home__intro">{{ intro | safe }}</div>
     <div class="home__auth">
@@ -11,5 +11,10 @@
             <a href="/login">Login</a> or <a href="/signup">Sign up</a>
         {% endif %}
     </div>
-</div>
+    {% if user %}
+    <div class="home__groups">
+        <a href="/new">Create a new group</a>
+    </div>
+    {% endif %}
+</main>
 {% endblock %}

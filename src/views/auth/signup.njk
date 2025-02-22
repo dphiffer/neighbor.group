@@ -2,28 +2,30 @@
 
 {% block body %}
 {% include "partials/nav.njk" %}
-<form action="/signup" method="post" class="signup">
-	<h2>Sign up for an account</h2>
-	<label>
-		Name
-		<input type="text" name="name" value="{{ name }}">
-	</label>
-	<label>
-		Email address
-		<input type="email" name="email" value="{{ email }}">
-	</label>
-	<label>
-		Password
-		<input type="password" name="password" value="{{ password }}">
-	</label>
-	{% if feedback %}
-		<div class="feedback">
-			{{ feedback }}
+<main class="signup auth">
+	<form action="/signup" method="post">
+		<h2>Sign up for an account</h2>
+		<label>
+			Name
+			<input type="text" name="name" value="{{ name }}">
+		</label>
+		<label>
+			Email address
+			<input type="email" name="email" value="{{ email }}">
+		</label>
+		<label>
+			Password
+			<input type="password" name="password" value="{{ password }}">
+		</label>
+		{% if feedback %}
+			<div class="feedback">
+				{{ feedback }}
+			</div>
+		{% endif %}
+		<input type="submit" value="Sign up">
+		<div class="signup__options">
+			<a href="/login">Login to an existing account</a>
 		</div>
-	{% endif %}
-	<input type="submit" value="Sign up">
-	<div class="signup__options">
-		<a href="/login">Login to an existing account</a>
-	</div>
-</form>
+	</form>
+</main>
 {% endblock %}
