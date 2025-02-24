@@ -1,4 +1,5 @@
 @use 'variables' as *;
+@use 'sass:color';
 
 label {
 	display: block;
@@ -47,4 +48,11 @@ a.button {
 	&:hover {
 		background-color: $c-dark;
 	}
+}
+
+form .feedback {
+	background: color.adjust($c-alert, $lightness: 30%);
+	padding: 15px;
+	margin-bottom: 15px;
+	line-height: 1.2;
 }

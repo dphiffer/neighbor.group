@@ -1,5 +1,4 @@
 @use 'variables' as *;
-@use 'sass:color';
 
 main.auth {
 	max-width: 450px;
@@ -26,11 +25,4 @@ main.auth {
 		font-size: 2em;
 		width: 140px;
 	}
-
-    .feedback {
-        background: color.adjust($c-alert, $lightness: 30%);
-        padding: 15px;
-        margin-bottom: 15px;
-        line-height: 1.2;
-    }
 }
