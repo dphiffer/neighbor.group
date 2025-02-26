@@ -15,6 +15,8 @@ export type AppOptions = {
 export default async function buildApp(options: AppOptions = {}) {
 	const app = fastify(options);
 
+	await app.register(sitePlugin);
+
 	nunjucks.configure('views', {
 		autoescape: true
 	});
@@ -25,7 +27,7 @@ export default async function buildApp(options: AppOptions = {}) {
 		},
 		root: path.join(path.dirname(__dirname), "src", "views"),
 		defaultContext: {
-			siteTitle: "neighbor.group",
+			siteTitle: app.getOption("site.title", "neighbor.group"),
 		},
 	});
 
@@ -42,7 +44,6 @@ export default async function buildApp(options: AppOptions = {}) {
 
 	app.register(fastifyFormbody);
 
-	await app.register(sitePlugin);
 	await app.register(siteRoutes);
 
 	return app;
