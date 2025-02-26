@@ -45,6 +45,7 @@ export default (
 		try {
 			const group = GroupModel.load(app.db, request.params.group);
 			return reply.view('group/index.njk', {
+				title: group.data.name,
 				group: group
 			});
 		} catch (err) {
