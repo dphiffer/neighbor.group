@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRegisterOptions } from "fastify";
 import authRoutes from "./auth";
 import groupRoutes from "./group";
+import GroupModel from "../models/group";
 
 interface IndexOptions {}
 
@@ -14,8 +15,9 @@ export default (
 			title: app.getOption("site.title", "neighbor.group"),
 			intro: app.getOption(
 				"site.intro",
-				"A website for <i>local</i> groups."
+				"A website for local groups."
 			),
+			groups: GroupModel.all(app.db),
 		});
 	});
 

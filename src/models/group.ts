@@ -10,6 +10,13 @@ export default class GroupModel {
 		this.data = data;
 	}
 
+	static all(db: DatabaseConnection) {
+		const rows = db.groups.all();
+		return rows.map(row => {
+			return new GroupModel(db, row);
+		});
+	}
+
 	static async create(db: DatabaseConnection, data: GroupsRow) {
 		if (!data.name || !data.slug) {
 			throw new Error("Please enter a name and URL for your group.");

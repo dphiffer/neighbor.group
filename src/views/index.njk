@@ -12,9 +12,16 @@
         {% endif %}
     </div>
     {% if user %}
-    <div class="home__groups">
-        <a href="/new">Create a new group</a>
-    </div>
+        <div class="home__groups">
+            <a href="/new">Create a new group</a>
+        </div>
+        {% if groups | length %}
+            <ul>
+                {% for group in groups %}
+                    <li><a href="/{{ group.data.slug }}">{{ group.data.name }}</a></li></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endif %}
 </main>
 {% endblock %}
