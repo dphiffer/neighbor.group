@@ -5,6 +5,17 @@ export default class GroupModel {
 	db: DatabaseConnection;
 	data: GroupsRow;
 
+	// Avoid name collisions with top-level routes
+	static forbiddenNames = [
+		"home",
+		"new",
+		"signup",
+		"register",
+		"login",
+		"logout",
+		"password",
+	];
+
 	constructor(db: DatabaseConnection, data: GroupsRow) {
 		this.db = db;
 		this.data = data;
@@ -23,6 +34,9 @@ export default class GroupModel {
 		}
 		if (db.groups.loadBySlug(data.slug)) {
 			throw new Error("Sorry, that URL address is registered to an existing group.");
+		}
+		if (GroupModel.forbiddenNames.indexOf(data.name) > -1) {
+			throw new Error("Sorry, that group name is not allowed.");
 		}
 		data.active = 1;
 		const result = db.groups.insert(data);
