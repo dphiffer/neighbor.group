@@ -13,15 +13,16 @@
     </div>
     {% if user %}
         <div class="home__groups">
-            <a href="/new">Create a new group</a>
-        </div>
-        {% if groups | length %}
+            <h3>Groups</h3>
             <ul>
-                {% for group in groups %}
-                    <li><a href="/{{ group.data.slug }}">{{ group.data.name }}</a></li></li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+                {% if groups | length %}
+                    {% for group in groups %}
+                        <li><a href="/{{ group.data.slug }}">{{ group.data.name }}</a></li></li>
+                    {% endfor %}
+                {% endif %}
+                <li class="home__group-add"><a href="/new">Create a new group</a></li>
+            </ul>            
+        </div>
     {% endif %}
 </main>
 {% endblock %}

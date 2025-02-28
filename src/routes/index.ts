@@ -11,7 +11,7 @@ export default (
 	done: () => void
 ) => {
 	app.all("/", (_, reply) => {
-		reply.view("index.njk", {
+		reply.view("home.njk", {
 			title: app.getOption("site.title", "neighbor.group"),
 			intro: app.getOption(
 				"site.intro",
@@ -30,5 +30,6 @@ export default (
 
 	app.register(authRoutes);
 	app.register(groupRoutes);
+
 	done();
 };
