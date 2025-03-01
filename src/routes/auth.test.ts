@@ -89,7 +89,7 @@ describe("auth routes", () => {
 		expect(response.statusCode).toBe(200);
 	});
 
-	test("login submission", async () => {
+	test("login post", async () => {
 		process.env.DATABASE = "test-auth-routes.db";
 		const app = await buildApp();
 		const response = await app.inject({
@@ -154,6 +154,42 @@ describe("auth routes", () => {
 			},
 		});
 		expect(response2.statusCode).toBe(302);
+	});
+
+	test("login redirect", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/login",
+			body: {
+				email: "test@test.test",
+				password: "Test 1 two",
+				redirect: "/foo"
+			},
+		});
+		expect(response.cookies.length).toBe(1);
+		expect(response.cookies[0].name).toBe("session");
+		expect(response.statusCode).toBe(302);
+		expect(response.headers.location).toEqual('/foo');
+	});
+
+	test("login with invalid redirect", async () => {
+		process.env.DATABASE = "test-auth-routes.db";
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/login",
+			body: {
+				email: "test@test.test",
+				password: "Test 1 two",
+				redirect: "https://www.google.com/"
+			},
+		});
+		expect(response.cookies.length).toBe(1);
+		expect(response.cookies[0].name).toBe("session");
+		expect(response.statusCode).toBe(302);
+		expect(response.headers.location).toEqual('/');
 	});
 
 	test("logout", async () => {

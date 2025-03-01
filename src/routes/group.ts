@@ -20,16 +20,15 @@ export default (
 		reply.view("group/new.njk");
 	});
 
-	app.post('/new', async (request: FastifyRequest<{ Body: GroupsRow }>, reply) => {
+	app.post('/new', (request: FastifyRequest<{ Body: GroupsRow }>, reply) => {
 		try {
-			const group = await GroupModel.create(app.db, request.body);
+			const group = GroupModel.create(app.db, request.body);
 			return reply.redirect(`/${group.data.slug}`);
 		} catch (err) {
 			let feedback = "Error: something unexpected happened.";
 			if (err instanceof Error) {
 				feedback = err.message;
 			}
-			console.error(err);
 			return reply.code(400).view("group/new.njk", {
 				feedback: feedback,
 				name: request.body.name,

@@ -31,6 +31,7 @@ export default class GroupsQueries {
 			SELECT *
 			FROM groups
 			WHERE id = ?
+			AND active = 1
 		`);
 		let row = stmt.get(id) as GroupsRow | null;
 		if (!row) {
@@ -56,20 +57,17 @@ export default class GroupsQueries {
 	insert(values: Partial<GroupsRow>) {
 		const cols = [];
 		const placeholders = [];
-		const skipCols = ["id", "created", "updated"];
+		const skipCols = ["id", "active", "created", "updated"];
 		for (const col of Object.keys(values)) {
 			if (skipCols.indexOf(col) === -1) {
 				cols.push(col);
 				placeholders.push(`$${col}`);
 			}
 		}
-		console.log(values);
-		console.log(cols);
-		console.log(placeholders);
 		let stmt = this.db.prepare(`
 			INSERT INTO groups
-			(${cols.join(", ")}, created, updated)
-			VALUES (${placeholders.join(", ")}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+			(${cols.join(", ")}, active, created, updated)
+			VALUES (${placeholders.join(", ")}, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 		`);
 		return stmt.run({ ... values});
 	}

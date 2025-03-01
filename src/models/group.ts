@@ -6,7 +6,7 @@ export default class GroupModel {
 	data: GroupsRow;
 
 	// Avoid name collisions with top-level routes
-	static forbiddenNames = [
+	static forbiddenSlugs = [
 		"home",
 		"new",
 		"signup",
@@ -28,15 +28,15 @@ export default class GroupModel {
 		});
 	}
 
-	static async create(db: DatabaseConnection, data: GroupsRow) {
+	static create(db: DatabaseConnection, data: GroupsRow) {
 		if (!data.name || !data.slug) {
 			throw new Error("Please enter a name and URL for your group.");
 		}
 		if (db.groups.loadBySlug(data.slug)) {
 			throw new Error("Sorry, that URL address is registered to an existing group.");
 		}
-		if (GroupModel.forbiddenNames.indexOf(data.name) > -1) {
-			throw new Error("Sorry, that group name is not allowed.");
+		if (GroupModel.forbiddenSlugs.indexOf(data.slug) > -1) {
+			throw new Error("Sorry, that group URL cannot be registered.");
 		}
 		data.active = 1;
 		const result = db.groups.insert(data);
