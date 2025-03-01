@@ -2,7 +2,7 @@
 
 {% block body %}
 {% include "partials/nav.njk" %}
-<div class="login">
+<main class="login auth">
 	<form action="/login" method="post" class="login__form">
 		<input type="hidden" name="redirect" value="{{ redirect }}">
 		<h2>Login to your account</h2>
@@ -25,5 +25,5 @@
 		<a href="/password">Forget your password?</a>
         <a href="/signup">Sign up for a new account</a>
 	</div>
-</div>
+</main>
 {% endblock %}

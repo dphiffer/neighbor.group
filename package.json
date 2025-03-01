@@ -10,7 +10,7 @@
 		"build:tsc": "tsc",
 		"build:sass": "sass src/css/main.scss:dist/main.css",
 		"dev": "npm-run-all -p dev:*",
-		"dev:server": "tsc && nodemon --ext js,json,njk views dist/server.js",
+		"dev:server": "tsc && nodemon --ext js,json,njk dist/server.js",
 		"dev:tsc": "tsc --watch",
 		"dev:sass": "sass --watch src/css/main.scss:dist/main.css"
 	},

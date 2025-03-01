@@ -19,4 +19,16 @@
         border: 1px solid $c-medium;
         margin-top: 20px;
     }
+
+    .home__groups {
+        margin-top: 20px;
+        
+        li {
+            margin-top: 10px;
+        }
+    }
+
+    .home__group-add a {
+        font-style: italic;
+    }
 }

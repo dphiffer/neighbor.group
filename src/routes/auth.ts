@@ -67,13 +67,16 @@ export default (
 		}
 	);
 
-	app.get("/login", (request, reply) => {
+	type loginGetRequest = FastifyRequest<{
+		Querystring: { redirect: string | null }
+	}>;
+	app.get("/login", (request: loginGetRequest, reply) => {
 		if (request.user) {
 			return reply.redirect("/");
 		}
 		reply.view("auth/login.njk", {
 			title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
-			redirect: "",
+			redirect: request.query.redirect || '',
 			email: "",
 			password: "",
 			feedback: "",
@@ -81,38 +84,37 @@ export default (
 		});
 	});
 
-	app.post(
-		"/login",
-		async (
-			request: FastifyRequest<{
-				Body: { email: string; password: string };
-			}>,
-			reply
-		) => {
-			let feedback = 'Sorry, your login was incorrect.';
-			try {
-				User.checkAuthErrors(app.db, request.ip, 'login'); // throws on too many login errors
-				let user = User.load(app.db, request.body.email);
-				let valid = await user.checkPassword(request.body.password);
-				if (valid) {
-					request.session.set("user.id", user.data.id);
-					User.authLog(app.db, request.ip, 'login', `Login: ${user.data.email}`);
-					return reply.redirect("/");
+	type loginPostRequest = FastifyRequest<{
+		Body: { email: string; password: string; redirect: string };
+	}>;
+	app.post("/login", async (request: loginPostRequest, reply) => {
+		let feedback = 'Sorry, your login was incorrect.';
+		try {
+			User.checkAuthErrors(app.db, request.ip, 'login'); // throws on too many login errors
+			let user = User.load(app.db, request.body.email);
+			let valid = await user.checkPassword(request.body.password);
+			if (valid) {
+				request.session.set("user.id", user.data.id);
+				User.authLog(app.db, request.ip, 'login', `Login: ${user.data.email}`);
+				let redirect = "/";
+				if (request.body.redirect && request.body.redirect.substring(0, 1) == '/') {
+					redirect = request.body.redirect;
 				}
-			} catch (err) {
-				if (err instanceof Error) {
-					feedback = err.message;
-				}
+				return reply.redirect(redirect);
 			}
-			User.authLog(app.db, request.ip, 'login error', `Login error: ${request.body.email}`);
-			return reply.code(400).view("auth/login.njk", {
-				title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
-				feedback: feedback,
-				email: request.body.email,
-				password: request.body.password,
-			});
+		} catch (err) {
+			if (err instanceof Error) {
+				feedback = err.message;
+			}
 		}
-	);
+		User.authLog(app.db, request.ip, 'login error', `Login error: ${request.body.email}`);
+		return reply.code(400).view("auth/login.njk", {
+			title: `Login - ${app.getOption("site.title", "neighbor.group")}`,
+			feedback: feedback,
+			email: request.body.email,
+			password: request.body.password,
+		});
+	});
 
 	app.get("/logout", (request, reply) => {
 		if (request.user) {

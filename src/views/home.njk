@@ -1,0 +1,28 @@
+{% extends "base.njk" %}
+
+{% block body %}
+<main class="home page">
+    <h1>{{ title }}</h1>
+    <div class="home__intro">{{ intro | safe }}</div>
+    <div class="home__auth">
+        {% if user %}
+            Hi, {{ user.data.name }} <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a> or <a href="/signup">Sign up</a>
+        {% endif %}
+    </div>
+    {% if user %}
+        <div class="home__groups">
+            <h3>Groups</h3>
+            <ul>
+                {% if groups | length %}
+                    {% for group in groups %}
+                        <li><a href="/{{ group.data.slug }}">{{ group.data.name }}</a></li></li>
+                    {% endfor %}
+                {% endif %}
+                <li class="home__group-add"><a href="/new">Create a new group</a></li>
+            </ul>            
+        </div>
+    {% endif %}
+</main>
+{% endblock %}
