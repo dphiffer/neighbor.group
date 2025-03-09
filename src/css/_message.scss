@@ -1,0 +1,12 @@
+.message {
+	margin-top: 1em;
+
+	.message__user {
+		font-weight: bold;
+		margin-bottom: 0.5em;
+	}
+
+	.message__content {
+		line-height: 1.2;
+	}
+}

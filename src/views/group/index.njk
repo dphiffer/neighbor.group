@@ -7,5 +7,14 @@
 	<div class="group__description">
 		{{ group.data.description }}
 	</div>
+	<form action="/{{ group.data.slug }}" method="post">
+		<textarea name="message" rows="4" cols="80"></textarea>
+		<input type="submit" value="Post message">
+	</form>
+	<div class="group__messages">
+		{% for message in messages %}
+			{% include "partials/message.njk" %}
+		{% endfor %}
+	</div>
 </main>
 {% endblock %}

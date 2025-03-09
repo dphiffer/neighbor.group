@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRegisterOptions } from "fastify";
 import authRoutes from "./auth";
 import groupRoutes from "./group";
+import messageRoutes from "./message";
 import GroupModel from "../models/group";
 
 interface IndexOptions {}
@@ -30,6 +31,7 @@ export default (
 
 	app.register(authRoutes);
 	app.register(groupRoutes);
+	app.register(messageRoutes);
 
 	done();
 };

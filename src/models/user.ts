@@ -157,4 +157,8 @@ export default class UserModel {
 	delete() {
 		this.db.user.delete(this.data.id);
 	}
+
+	toString() {
+		return this.data.name;
+	}
 }

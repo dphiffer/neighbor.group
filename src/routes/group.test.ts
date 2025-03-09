@@ -104,6 +104,9 @@ describe("group routes", () => {
 		const response = await app.inject({
 			method: "GET",
 			url: "/test-group",
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(200);
 	});
@@ -114,7 +117,87 @@ describe("group routes", () => {
 		const response = await app.inject({
 			method: "GET",
 			url: "/does-not-exist",
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(404);
+	});
+
+	test("load a group while not signed in", async () => {
+		process.env.DATABASE = dbName;
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "GET",
+			url: "/test-group",
+			// cookies: {
+			// 	session: session.value,
+			// },
+		});
+		expect(response.statusCode).toBe(302);
+	});
+
+	test("post a message to a group", async () => {
+		process.env.DATABASE = dbName;
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/test-group",
+			body: {
+				message: "This is a test message.",
+			},
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response.statusCode).toBe(302);
+	});
+
+	test("post an empty message to a group", async () => {
+		process.env.DATABASE = dbName;
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/test-group",
+			body: {
+				message: "",
+			},
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response.statusCode).toBe(400);
+	});
+
+	test("post a message to a non-existent group", async () => {
+		process.env.DATABASE = dbName;
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/does-not-exist",
+			body: {
+				message: "Test message.",
+			},
+			cookies: {
+				session: session.value,
+			},
+		});
+		expect(response.statusCode).toBe(404);
+	});
+
+	test("post a message to a group while not signed in", async () => {
+		process.env.DATABASE = dbName;
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/test-group",
+			body: {
+				message: "Test message.",
+			},
+			// cookies: {
+			// 	session: session.value,
+			// },
+		});
+		expect(response.statusCode).toBe(400);
 	});
 });

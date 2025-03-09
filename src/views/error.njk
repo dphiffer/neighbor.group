@@ -1,0 +1,8 @@
+{% extends "base.njk" %}
+
+{% block body %}
+<main class="error">
+    <h1>{{ status }} error</h1>
+    <div class="error__feedback">{{ feedback }}</div>
+</main>
+{% endblock %}

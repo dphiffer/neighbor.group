@@ -178,4 +178,15 @@ describe("user model", () => {
 		const errors = db.authLog.getRecentErrors('1.2.3.4', 'login');
 		expect(errors.length).toBe(dailyErrorLimits.login);
 	});
+
+	test("stringified user", async () => {
+		const user = await User.create(db, {
+			id: 0,
+			name: "testing",
+			email: "test2@test.test",
+			slug: "test",
+			password: "Test 1 two",
+		});
+		expect(`test: ${user}`).toBe("test: testing");
+	});
 });

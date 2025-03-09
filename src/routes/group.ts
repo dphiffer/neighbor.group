@@ -4,6 +4,7 @@ import {
 	FastifyRegisterOptions,
 } from "fastify";
 import GroupModel from "../models/group";
+import MessageModel from "../models/message";
 import { GroupsRow } from "../db/groups";
 
 interface GroupOptions {}
@@ -15,7 +16,8 @@ export default (
 ) => {
 	app.get("/new", (request, reply) => {
 		if (!request.user) {
-			return reply.redirect("/login?redirect=/new");
+			let redirect = encodeURIComponent('/new');
+			return reply.redirect(`/login?redirect=${redirect}`);
 		}
 		reply.view("group/new.njk");
 	});
@@ -42,13 +44,66 @@ export default (
 		Params: { group: string };
 	}>, reply) => {
 		try {
+			if (!request.user) {
+				let redirect = encodeURIComponent(`/${request.params.group}`);
+				reply.redirect(`/login?redirect=${redirect}`);
+			}
 			const group = GroupModel.load(app.db, request.params.group);
+			const messages = MessageModel.query(app.db, group.data.id);
 			return reply.view('group/index.njk', {
 				title: group.data.name,
-				group: group
+				group: group,
+				messages: messages
 			});
 		} catch (err) {
-			return reply.code(404).view("404.njk");
+			let feedback = "Sorry, the page you’re looking for isn’t available.";
+			if (err instanceof Error) {
+				feedback = err.message;
+			}
+			return reply.code(404).view("error.njk", {
+				status: 404,
+				feedback: feedback
+			});
+		}
+	});
+
+	app.post('/:group', (request: FastifyRequest<{
+		Params: {
+			group: string
+		},
+		Body: {
+			message: string
+		}
+	}>, reply) => {
+		try {
+			if (!request.user) {
+				throw new Error('You must be signed in to post a message.');
+			}
+			const group = GroupModel.load(app.db, request.params.group);
+			if (!request.body.message) {
+				throw new Error('Please include a message to post.');
+			}
+			MessageModel.create(app.db, {
+				id: 0,
+				group_id: group.data.id,
+				user_id: request.user.data.id,
+				message: request.body.message,
+			});
+			return reply.redirect(`/${group.data.slug}`);
+		} catch (err) {
+			let status = 500;
+			let feedback = "Something unexpected happened.";
+			if (err instanceof Error) {
+				status = 400;
+				feedback = err.message;
+				if (feedback.substring(0, 20) == 'Could not find group') {
+					status = 404;
+				}
+			}
+			return reply.code(status).view("error.njk", {
+				status: status,
+				feedback: feedback
+			});
 		}
 	});
 

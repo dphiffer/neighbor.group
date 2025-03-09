@@ -7,6 +7,7 @@ import UserQueries from "./user";
 import PasswordResetQueries from "./passwordReset";
 import AuthLogQueries from "./authLog";
 import GroupsQueries from "./groups";
+import MessageQueries from "./message";
 
 export default class DatabaseConnection {
 	conn: Database;
@@ -15,6 +16,7 @@ export default class DatabaseConnection {
 	passwordReset: PasswordResetQueries;
 	authLog: AuthLogQueries;
 	groups: GroupsQueries;
+	message: MessageQueries;
 
 	static connections: Database[] = [];
 
@@ -25,6 +27,7 @@ export default class DatabaseConnection {
 		this.passwordReset = new PasswordResetQueries(this.conn);
 		this.authLog = new AuthLogQueries(this.conn);
 		this.groups = new GroupsQueries(this.conn);
+		this.message = new MessageQueries(this.conn);
 	}
 
 	static getConnection(name: string) {
