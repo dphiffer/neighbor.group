@@ -104,6 +104,9 @@ describe("group routes", () => {
 		const response = await app.inject({
 			method: "GET",
 			url: "/test-group",
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(200);
 	});
@@ -114,6 +117,9 @@ describe("group routes", () => {
 		const response = await app.inject({
 			method: "GET",
 			url: "/does-not-exist",
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(404);
 	});
