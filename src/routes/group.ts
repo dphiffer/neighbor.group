@@ -80,9 +80,6 @@ export default (
 				throw new Error('You must be signed in to post a message.');
 			}
 			const group = GroupModel.load(app.db, request.params.group);
-			if (!group) {
-				throw new Error(`Could not find group '${request.params.group}'.`);
-			}
 			if (!request.body.message) {
 				throw new Error('Please include a message to post.');
 			}
@@ -94,12 +91,17 @@ export default (
 			});
 			return reply.redirect(`/${group.data.slug}`);
 		} catch (err) {
-			let feedback = "Error: something unexpected happened.";
+			let status = 500;
+			let feedback = "Something unexpected happened.";
 			if (err instanceof Error) {
+				status = 400;
 				feedback = err.message;
+				if (feedback.substring(0, 20) == 'Could not find group') {
+					status = 404;
+				}
 			}
-			return reply.code(500).view("error.njk", {
-				status: 500,
+			return reply.code(status).view("error.njk", {
+				status: status,
 				feedback: feedback
 			});
 		}

@@ -53,7 +53,7 @@ export default class GroupModel {
 			data = db.groups.loadBySlug(id);
 		}
 		if (!data) {
-			throw new Error(`Group '${id}' not found.`);
+			throw new Error(`Could not find group '${id}'.`);
 		}
 		return new GroupModel(db, data);
 	}
