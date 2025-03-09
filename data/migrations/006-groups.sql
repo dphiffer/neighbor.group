@@ -1,4 +1,4 @@
-CREATE TABLE groups (
+CREATE TABLE IF NOT EXISTS groups (
 	id INTEGER PRIMARY KEY,
 	slug TEXT UNIQUE,
 	name TEXT,
@@ -7,4 +7,4 @@ CREATE TABLE groups (
 	created TEXT,
 	updated TEXT
 );
-CREATE INDEX groups_idx ON groups (id, slug, active);
+CREATE INDEX IF NOT EXISTS groups_idx ON groups (id, slug, active);

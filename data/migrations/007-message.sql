@@ -1,4 +1,4 @@
-CREATE TABLE message (
+CREATE TABLE IF NOT EXISTS message (
 	id INTEGER PRIMARY KEY,
 	group_id INTEGER,
 	user_id INTEGER,
@@ -7,4 +7,4 @@ CREATE TABLE message (
 	created TEXT,
 	updated TEXT
 );
-CREATE INDEX message_idx ON message (id, group_id, user_id, active);
+CREATE INDEX IF NOT EXISTS message_idx ON message (id, group_id, user_id, active);

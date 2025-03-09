@@ -1,4 +1,4 @@
-CREATE TABLE auth_log (
+CREATE TABLE IF NOT EXISTS auth_log (
 	id INTEGER PRIMARY KEY,
 	ip_address TEXT,
 	event TEXT,
