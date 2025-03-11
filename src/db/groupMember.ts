@@ -23,13 +23,17 @@ export default class GroupMemberQueries {
 	}
 
 	select(groupId: number, userId: number) {
-		let stmt = this.db.prepare(`
+		const stmt = this.db.prepare(`
 			SELECT *
 			FROM group_member
 			WHERE group_id = ?
 			  AND user_id = ?
 		`);
-		return stmt.get(groupId, userId) as GroupMemberRow | null;
+		const row = stmt.get(groupId, userId) as GroupMemberRow | null;
+		if (!row) {
+			return null;
+		}
+		return row;
 	}
 
 	delete(groupId: number, userId: number) {
@@ -39,7 +43,7 @@ export default class GroupMemberQueries {
 			WHERE group_id = ?
 			  AND user_id = ?
 		`);
-		stmt.run(groupId, userId);
+		return stmt.run(groupId, userId);
 	}
 
 }
