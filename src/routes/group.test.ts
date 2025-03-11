@@ -79,9 +79,29 @@ describe("group routes", () => {
 			body: {
 				name: "Test",
 				slug: "test-group"
-			}
+			},
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(302);
+	});
+
+	test("post new group not signed in", async () => {
+		process.env.DATABASE = dbName;
+		const app = await buildApp();
+		const response = await app.inject({
+			method: "POST",
+			url: "/new",
+			body: {
+				name: "Test",
+				slug: "test-group"
+			},
+			// cookies: {
+			// 	session: session.value,
+			// },
+		});
+		expect(response.statusCode).toBe(401);
 	});
 
 	test("post new group with missing details", async () => {
@@ -93,7 +113,10 @@ describe("group routes", () => {
 			body: {
 				name: "Test",
 				slug: ""
-			}
+			},
+			cookies: {
+				session: session.value,
+			},
 		});
 		expect(response.statusCode).toBe(400);
 	});
