@@ -41,6 +41,7 @@ export default class GroupModel {
 		data.active = 1;
 		const result = db.groups.insert(data);
 		data.id = result.lastInsertRowid as number;
+
 		return new GroupModel(db, data);
 	}
 
@@ -57,4 +58,22 @@ export default class GroupModel {
 		}
 		return new GroupModel(db, data);
 	}
+
+	addMember(db: DatabaseConnection, userId: number) {
+		return db.groupMember.insert({
+			group_id: this.data.id,
+			user_id: userId
+		});
+	}
+
+	hasMember(db: DatabaseConnection, userId: number) {
+		const response = db.groupMember.select(this.data.id, userId);
+		console.log(response);
+		return response !== null;
+	}
+
+	removeMember(db: DatabaseConnection, userId: number) {
+		return db.groupMember.delete(this.data.id, userId);
+	}
+
 }
