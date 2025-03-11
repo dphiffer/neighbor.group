@@ -59,17 +59,16 @@ export default class GroupModel {
 		return new GroupModel(db, data);
 	}
 
+	hasMember(db: DatabaseConnection, userId: number) {
+		const response = db.groupMember.select(this.data.id, userId);
+		return response !== null;
+	}
+
 	addMember(db: DatabaseConnection, userId: number) {
 		return db.groupMember.insert({
 			group_id: this.data.id,
 			user_id: userId
 		});
-	}
-
-	hasMember(db: DatabaseConnection, userId: number) {
-		const response = db.groupMember.select(this.data.id, userId);
-		console.log(response);
-		return response !== null;
 	}
 
 	removeMember(db: DatabaseConnection, userId: number) {
