@@ -9,3 +9,13 @@
 		width: 200px;
 	}
 }
+
+.join-group, .leave-group {
+	margin-top: 1.5em;
+
+	input[type="submit"],
+	a.button {
+		display: block;
+		margin-top: 1.5em;
+	}
+}

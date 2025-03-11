@@ -1,0 +1,12 @@
+{% extends "base.njk" %}
+
+{% block body %}
+{% include "partials/nav.njk" %}
+<main>
+	<h2>{{ group.data.name }}</h2>
+	<form action="/{{ group.data.slug }}/leave" method="post" class="leave-group">
+		<p><i>Would you like to leave this group?</i></p>
+		<input type="submit" value="Leave group">
+	</form>
+</main>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.njk" %}
+
+{% block body %}
+{% include "partials/nav.njk" %}
+<main>
+	<h2>{{ group.data.name }}</h2>
+	<div class="group__description">
+		{{ group.data.description }}
+	</div>
+	<form action="/{{ group.data.slug }}/join" method="post" class="join-group">
+		<i>Would you like to join this group?</i>
+		<input type="submit" value="Join group">
+	</form>
+</main>
+{% endblock %}
