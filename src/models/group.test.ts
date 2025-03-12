@@ -92,4 +92,16 @@ describe("group model", () => {
 			expect(Group.load(db, 'does-not-exist')).toThrow(Error);
 		} catch(_) {}
 	});
+
+	test("add a group member", () => {
+		const group = Group.load(db, 'test')!;
+		const response = group.addMember(db, 25);
+		expect(group.hasMember(db, 25)).toBeTruthy();
+	});
+
+	test("remove a group member", () => {
+		const group = Group.load(db, 'test')!;
+		group.removeMember(db, 25);
+		expect(group.hasMember(db, 25)).toBeFalsy();
+	});
 });

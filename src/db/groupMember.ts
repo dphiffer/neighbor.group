@@ -17,7 +17,7 @@ export default class GroupMemberQueries {
 		let stmt = this.db.prepare(`
 			INSERT INTO group_member
 			(group_id, user_id, created)
-			VALUES ($user_id, $group_id, CURRENT_TIMESTAMP)
+			VALUES ($group_id, $user_id, CURRENT_TIMESTAMP)
 		`);
 		return stmt.run({ ... values});
 	}

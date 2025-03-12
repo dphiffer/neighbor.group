@@ -125,16 +125,33 @@ export default (
 			group: string
 		}
 	}>, reply) => {
-		const group = GroupModel.load(app.db, request.params.group);
-		if (!group) {
-			return reply.code(404).view("error.njk", {
-				status: 404,
-				feedback: 'Page not found.'
+		if (!request.user) {
+			const redirect = encodeURIComponent(`/${request.params.group}/join`);
+			return reply.redirect(`/login?redirect=${redirect}`);
+		}
+		try {
+			const group = GroupModel.load(app.db, request.params.group);
+			if (group.hasMember(app.db, request.user.data.id)) {
+				return reply.redirect(`/${request.params.group}`);
+			}
+			return reply.view('group/join.njk', {
+				group: group,
+			});
+		} catch(err) {
+			let status = 500;
+			let feedback = "Something unexpected happened.";
+			if (err instanceof Error) {
+				status = 400;
+				feedback = err.message;
+				if (feedback.substring(0, 20) == 'Could not find group') {
+					status = 404;
+				}
+			}
+			return reply.code(status).view("error.njk", {
+				status: status,
+				feedback: feedback
 			});
 		}
-		return reply.view('group/join.njk', {
-			group: group,
-		});
 	});
 
 	app.post('/:group/join', (request: FastifyRequest<{
@@ -159,6 +176,8 @@ export default (
 				feedback = err.message;
 				if (feedback == 'You must be signed in to join group.') {
 					status = 401;
+				} else if (feedback.substring(0, 20) == 'Could not find group') {
+					status = 404;
 				}
 			}
 			return reply.code(status).view("error.njk", {
@@ -173,16 +192,36 @@ export default (
 			group: string
 		}
 	}>, reply) => {
-		const group = GroupModel.load(app.db, request.params.group);
-		if (!group) {
-			return reply.code(404).view("error.njk", {
-				status: 404,
-				feedback: 'Page not found.'
+		if (!request.user) {
+			const redirect = encodeURIComponent(`/${request.params.group}/leave`);
+			return reply.redirect(`/login?redirect=${redirect}`);
+		}
+		try {
+			const group = GroupModel.load(app.db, request.params.group);
+			if (!group.hasMember(app.db, request.user.data.id)) {
+				return reply.code(404).view("error.njk", {
+					status: 404,
+					feedback: 'Page not found.'
+				});
+			}
+			return reply.view('group/leave.njk', {
+				group: group,
+			});
+		} catch(err) {
+			let status = 500;
+			let feedback = "Something unexpected happened.";
+			if (err instanceof Error) {
+				status = 400;
+				feedback = err.message;
+				if (feedback.substring(0, 20) == 'Could not find group') {
+					status = 404;
+				}
+			}
+			return reply.code(status).view("error.njk", {
+				status: status,
+				feedback: feedback
 			});
 		}
-		return reply.view('group/leave.njk', {
-			group: group,
-		});
 	});
 
 	app.post('/:group/leave', (request: FastifyRequest<{
@@ -207,6 +246,8 @@ export default (
 				feedback = err.message;
 				if (feedback == 'You must be signed in to leave group.') {
 					status = 401;
+				} else if (feedback.substring(0, 20) == 'Could not find group') {
+					status = 404;
 				}
 			}
 			return reply.code(status).view("error.njk", {
